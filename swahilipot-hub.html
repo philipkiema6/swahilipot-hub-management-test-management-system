@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwahiliPot Hub — Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --bg2: #111520;
+  --bg3: #171c2a;
+  --surface: #1e2535;
+  --surface2: #252d3f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaf0;
+  --text2: #8b91a8;
+  --text3: #5a6075;
+  --accent: #4f8ef7;
+  --accent2: #3d7ae8;
+  --green: #22d3a0;
+  --green-bg: rgba(34,211,160,0.1);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.1);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167,139,250,0.1);
+  --cyan: #22d3ee;
+  --cyan-bg: rgba(34,211,238,0.1);
+  --pink: #f472b6;
+  --pink-bg: rgba(244,114,182,0.1);
+  --font: 'Space Grotesk', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 10px;
+  --radius2: 14px;
+  --sidebar: 240px;
+  --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;display:flex;min-height:100vh;overflow-x:hidden}
+
+/* SIDEBAR */
+#sidebar{width:var(--sidebar);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;transition:transform var(--transition)}
+.logo-area{padding:20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#7c3aed);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;flex-shrink:0}
+.logo-text{font-weight:600;font-size:13px;line-height:1.35}
+.logo-text span{color:var(--text2);font-weight:400;font-size:11px;display:block}
+.nav-section{padding:12px 10px 6px;font-size:10px;font-weight:600;letter-spacing:1px;color:var(--text3);text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all var(--transition);color:var(--text2);font-size:13px;font-weight:500;margin:1px 6px;position:relative}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:rgba(79,142,247,0.12);color:var(--accent)}
+.nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;font-family:var(--mono)}
+.nav-icon{width:16px;text-align:center;font-size:15px;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius);cursor:pointer;transition:background var(--transition)}
+.user-card:hover{background:var(--surface)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;color:#fff;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-role{font-size:11px;color:var(--text3)}
+
+/* MAIN */
+#main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:60px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:50}
+.page-title{font-size:16px;font-weight:600;color:var(--text)}
+.page-sub{font-size:12px;color:var(--text3)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.topbar-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all var(--transition)}
+.topbar-btn:hover{background:var(--surface);color:var(--text)}
+.notif-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:6px;right:6px}
+.content{padding:24px;flex:1}
+
+/* CARDS & GRIDS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:18px;transition:all var(--transition)}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.stat-value{font-size:26px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.stat-change{font-size:12px;font-weight:500}
+.stat-change.up{color:var(--green)}
+.stat-change.down{color:var(--red)}
+.stat-icon{font-size:28px;float:right;margin-top:-8px;opacity:0.6}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;margin-bottom:18px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-sub{font-size:12px;color:var(--text3)}
+
+/* TABLES */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;padding:10px 12px;border-bottom:1px solid var(--border);text-align:left}
+td{padding:12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600}
+.badge.green{background:var(--green-bg);color:var(--green)}
+.badge.amber{background:var(--amber-bg);color:var(--amber)}
+.badge.red{background:var(--red-bg);color:var(--red)}
+.badge.blue{background:rgba(79,142,247,0.12);color:var(--accent)}
+.badge.purple{background:var(--purple-bg);color:var(--purple)}
+.badge.cyan{background:var(--cyan-bg);color:var(--cyan)}
+.badge.gray{background:rgba(255,255,255,0.05);color:var(--text3)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:none;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{background:var(--surface2);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--surface);color:var(--text)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.btn-success{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,211,160,0.2)}
+
+/* FORMS */
+.form-group{margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;transition:border-color var(--transition);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select option{background:var(--bg3)}
+textarea{resize:vertical;min-height:80px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:24px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:scale(0.95);transition:transform var(--transition)}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:var(--surface);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* PROGRESS / MISC */
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.5s}
+.tag{display:inline-block;background:var(--surface2);color:var(--text2);padding:2px 8px;border-radius:4px;font-size:11px;margin:2px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.empty-state{text-align:center;padding:48px;color:var(--text3)}
+.empty-state .icon{font-size:40px;margin-bottom:12px;display:block}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* STATUS DOT */
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot.green{background:var(--green)}
+.dot.red{background:var(--red)}
+.dot.amber{background:var(--amber)}
+
+/* SEARCH */
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;flex:1;max-width:280px}
+.search-box input{background:none;border:none;padding:0;font-size:13px;outline:none;width:100%}
+.search-box span{color:var(--text3);font-size:16px}
+
+/* CHART BARS */
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:40px}
+.mini-bar{flex:1;background:var(--accent);border-radius:2px 2px 0 0;opacity:0.7;transition:opacity var(--transition)}
+.mini-bar:hover{opacity:1}
+
+/* TIMELINE */
+.timeline{padding-left:20px;border-left:2px solid var(--border)}
+.timeline-item{position:relative;padding:0 0 18px 18px}
+.timeline-dot{position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg2)}
+.timeline-time{font-size:11px;color:var(--text3);margin-bottom:3px}
+.timeline-text{font-size:13px;color:var(--text)}
+
+/* PAGE SECTIONS */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-size:18px;font-weight:700}
+.section-sub{font-size:13px;color:var(--text3);margin-top:2px}
+.tabs{display:flex;gap:2px;background:var(--surface);border-radius:9px;padding:4px;margin-bottom:20px}
+.tab{padding:7px 16px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text3);transition:all var(--transition)}
+.tab.active{background:var(--surface2);color:var(--text)}
+
+/* FM STATUS BANNER */
+.fm-banner{border-radius:var(--radius2);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.fm-banner.online{background:rgba(34,211,160,0.08);border:1px solid rgba(34,211,160,0.2)}
+.fm-banner.offline{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2)}
+.fm-pulse{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.fm-pulse.online{background:var(--green);box-shadow:0 0 0 0 var(--green);animation:pulse-green 2s infinite}
+.fm-pulse.offline{background:var(--red);animation:pulse-red 1s infinite}
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(34,211,160,0.4)}70%{box-shadow:0 0 0 8px rgba(34,211,160,0)}100%{box-shadow:0 0 0 0 rgba(34,211,160,0)}}
+@keyframes pulse-red{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* AUDIO PLAYER */
+.audio-player{background:var(--bg3);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px}
+.play-btn{width:36px;height:36px;border-radius:50%;background:var(--accent);border:none;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.waveform{flex:1;height:30px;display:flex;align-items:center;gap:1px}
+.wave-bar{width:2px;border-radius:1px;background:var(--accent);opacity:0.6}
+
+/* QR Box */
+.qr-box{background:var(--surface2);border-radius:12px;padding:20px;text-align:center;border:1px solid var(--border)}
+.qr-graphic{width:100px;height:100px;margin:0 auto 12px;background:var(--bg);border-radius:8px;display:grid;grid-template-columns:repeat(7,1fr);gap:1px;padding:8px}
+.qr-cell{border-radius:1px}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border)}
+.cal-cell{background:var(--surface);padding:8px;min-height:80px;cursor:pointer;transition:background var(--transition)}
+.cal-cell:hover{background:var(--surface2)}
+.cal-cell.today{background:rgba(79,142,247,0.08)}
+.cal-day-num{font-size:12px;color:var(--text3);margin-bottom:4px}
+.cal-event{font-size:10px;padding:2px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);z-index:500;display:flex;align-items:center;gap:10px;transform:translateY(100px);opacity:0;transition:all 0.3s}
+#toast.show{transform:translateY(0);opacity:1}
+
+/* RICH TEXT EDITOR MOCK */
+.rte-toolbar{display:flex;gap:4px;padding:8px;background:var(--bg3);border-radius:8px 8px 0 0;border:1px solid var(--border2);border-bottom:none;flex-wrap:wrap}
+.rte-btn{padding:4px 8px;border-radius:4px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:13px;transition:background var(--transition)}
+.rte-btn:hover{background:var(--surface)}
+.rte-body{background:var(--bg3);border:1px solid var(--border2);border-radius:0 0 8px 8px;min-height:160px;padding:12px;font-size:14px;line-height:1.6;outline:none;color:var(--text)}
+
+/* Upload zone */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius2);padding:32px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg3)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(79,142,247,0.04)}
+.upload-zone .icon{font-size:36px;display:block;margin-bottom:12px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #main{margin-left:0}
+}
+
+/* SPECIFIC MODULE STYLES */
+.equipment-status-row{display:flex;align-items:center;gap:8px}
+.fc-indicator{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600}
+.license-bar{display:flex;gap:2px;margin-top:6px}
+.license-seat{width:12px;height:12px;border-radius:2px}
+.license-seat.used{background:var(--accent)}
+.license-seat.free{background:var(--border2)}
+.news-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;cursor:pointer;transition:all var(--transition)}
+.news-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.show-slot{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;cursor:pointer;transition:background var(--transition)}
+.show-slot:hover{background:var(--surface2)}
+.show-slot.filled{border-color:rgba(79,142,247,0.3);background:rgba(79,142,247,0.06)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="logo-area">
+    <div class="logo-mark">SP</div>
+    <div class="logo-text">SwahiliPot Hub<span>Management System</span></div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:8px">
+    <div class="nav-section">Core</div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="nav-icon">🏠</span>Dashboard
+    </div>
+    <div class="nav-section">Operations</div>
+    <div class="nav-item" onclick="navigate('equipment')">
+      <span class="nav-icon">📦</span>Equipment
+      <span class="badge">3</span>
+    </div>
+    <div class="nav-item" onclick="navigate('projects')">
+      <span class="nav-icon">📁</span>Projects
+    </div>
+    <div class="nav-item" onclick="navigate('software')">
+      <span class="nav-icon">💿</span>Software
+    </div>
+    <div class="nav-item" onclick="navigate('wifi')">
+      <span class="nav-icon">📶</span>Wi-Fi Access
+      <span class="badge">2</span>
+    </div>
+    <div class="nav-section">Communication</div>
+    <div class="nav-item" onclick="navigate('complaints')">
+      <span class="nav-icon">🎫</span>Tickets
+      <span class="badge">7</span>
+    </div>
+    <div class="nav-item" onclick="navigate('files')">
+      <span class="nav-icon">🔗</span>File Transfer
+    </div>
+    <div class="nav-section">Broadcasting</div>
+    <div class="nav-item" onclick="navigate('fm')">
+      <span class="nav-icon">📡</span>FM Station
+    </div>
+    <div class="nav-item" onclick="navigate('calls')">
+      <span class="nav-icon">🎙️</span>Call Recordings
+    </div>
+    <div class="nav-item" onclick="navigate('schedule')">
+      <span class="nav-icon">📅</span>Radio Schedule
+    </div>
+    <div class="nav-item" onclick="navigate('news')">
+      <span class="nav-icon">📰</span>News CMS
+    </div>
+    <div class="nav-item" onclick="navigate('video')">
+      <span class="nav-icon">🎬</span>Videography
+    </div>
+    <div class="nav-section">Admin</div>
+    <div class="nav-item" onclick="navigate('admin')">
+      <span class="nav-icon">⚙️</span>Admin Panel
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-card" onclick="showToast('Profile settings coming soon')">
+      <div class="avatar">AK</div>
+      <div class="user-info">
+        <div class="user-name">Amina Kamau</div>
+        <div class="user-role">Admin</div>
+      </div>
+      <span style="color:var(--text3);font-size:14px">⚙️</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="topbar-title">Dashboard</div>
+      <div class="page-sub" id="topbar-sub">Wednesday, June 3, 2026</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search anything..." id="global-search">
+      </div>
+      <button class="topbar-btn" style="position:relative" onclick="showToast('3 new notifications')">
+        🔔<span class="notif-dot"></span>
+      </button>
+      <button class="topbar-btn" onclick="navigate('admin')">⚙️</button>
+    </div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✓ <span id="toast-msg"></span></div>
+
+<script>
+// ================== STATE ==================
+const state = {
+  page: 'dashboard',
+  equipment: [
+    {id:'EQ001',name:'Sony FX3 Camera',cat:'Camera',serial:'SN-2024-001',condition:'Good',status:'Available',purchase:'2024-01-15',borrower:null},
+    {id:'EQ002',name:'Rode NTG5 Mic',cat:'Audio',serial:'SN-2024-002',condition:'Good',status:'Checked Out',purchase:'2024-02-10',borrower:'Brian Otieno'},
+    {id:'EQ003',name:'DJI Ronin-S',cat:'Stabilizer',serial:'SN-2024-003',condition:'Fair',status:'Under Repair',purchase:'2023-11-20',borrower:null},
+    {id:'EQ004',name:'Sennheiser HD 800',cat:'Audio',serial:'SN-2023-045',condition:'Good',status:'Available',purchase:'2023-06-01',borrower:null},
+    {id:'EQ005',name:'Blackmagic ATEM',cat:'Switcher',serial:'SN-2024-012',condition:'Good',status:'Checked Out',purchase:'2024-03-10',borrower:'Jane Wanjiru'},
+    {id:'EQ006',name:'Arri Skypanel S60',cat:'Lighting',serial:'SN-2022-088',condition:'Good',status:'Available',purchase:'2022-08-15',borrower:null},
+  ],
+  projects: [
+    {id:'PRJ001',title:'News Documentary: Nairobi Youth',student:'Kelvin Mwangi',lecturer:'Dr. Odhiambo',type:'Video',status:'Under Review',submitted:'2026-05-28',grade:null},
+    {id:'PRJ002',title:'Radio Drama Script S02',student:'Grace Achieng',lecturer:'Prof. Kariuki',type:'Audio',status:'Graded',submitted:'2026-05-15',grade:'A-'},
+    {id:'PRJ003',title:'Brand Identity Package',student:'Marcus Njeru',lecturer:'Dr. Odhiambo',type:'PDF',status:'Submitted',submitted:'2026-06-01',grade:null},
+    {id:'PRJ004',title:'Podcast Series Pilot',student:'Faith Wambui',lecturer:'Prof. Kariuki',type:'Audio',status:'Graded',submitted:'2026-04-20',grade:'B+'},
+  ],
+  software: [
+    {id:'SW001',name:'Adobe Creative Cloud',vendor:'Adobe',seats:20,used:17,expiry:'2026-12-31',cost:'KES 45,000/yr',status:'Active'},
+    {id:'SW002',name:'Adobe Audition',vendor:'Adobe',seats:10,used:8,expiry:'2026-12-31',cost:'KES 12,000/yr',status:'Active'},
+    {id:'SW003',name:'Lightroom Classic',vendor:'Adobe',seats:15,used:11,expiry:'2026-09-30',cost:'KES 18,000/yr',status:'Expiring Soon'},
+    {id:'SW004',name:'DaVinci Resolve Studio',vendor:'Blackmagic',seats:5,used:5,expiry:'2027-01-15',cost:'KES 8,500/yr',status:'Active'},
+    {id:'SW005',name:'Pro Tools Ultimate',vendor:'Avid',seats:8,used:3,expiry:'2026-11-01',cost:'KES 22,000/yr',status:'Active'},
+  ],
+  wifi: [
+    {id:'WF001',name:'MacBook Pro — Brian',type:'Laptop',mac:'A4:C3:F0:12:34:AB',purpose:'Project Work',duration:'30 days',status:'Active',user:'Brian Otieno'},
+    {id:'WF002',name:'iPhone 14 — Grace',type:'Mobile',mac:'B2:D4:E1:56:78:CD',purpose:'Personal',duration:'7 days',status:'Pending',user:'Grace Achieng'},
+    {id:'WF003',name:'Dell XPS — Lab',type:'Desktop',mac:'C8:F2:A3:90:12:EF',purpose:'Lab Station',duration:'Permanent',status:'Active',user:'IT Dept'},
+    {id:'WF004',name:'iPad — Studio 2',type:'Tablet',mac:'D1:E5:B2:34:56:AB',purpose:'Production',duration:'14 days',status:'Expired',user:'Jane Wanjiru'},
+  ],
+  tickets: [
+    {id:'TKT001',cat:'Technical',priority:'High',desc:'Adobe CC not activating on Studio 3 machines',status:'In Progress',created:'2026-06-01',assignee:'IT Dept'},
+    {id:'TKT002',cat:'Facilities',priority:'Medium',desc:'Air conditioning noisy in editing suite',status:'Open',created:'2026-06-02',assignee:null},
+    {id:'TKT003',cat:'Equipment',priority:'Low',desc:'Tripod head loose on stand #7',status:'Resolved',created:'2026-05-29',assignee:'Technical Team'},
+    {id:'TKT004',cat:'Admin',priority:'High',desc:'Student portal login issues for new intake',status:'In Progress',created:'2026-06-03',assignee:'IT Dept'},
+    {id:'TKT005',cat:'Content',priority:'Medium',desc:'News CMS story approval taking too long',status:'Open',created:'2026-06-02',assignee:null},
+  ],
+  calls: [
+    {id:'CR001',show:'Morning Drive',operator:'Mike Oduya',studio:'A',duration:'3:42:00',date:'2026-06-03',size:'1.2 GB'},
+    {id:'CR002',show:'Afternoon Vibes',operator:'Sarah Kimani',studio:'B',duration:'4:00:00',date:'2026-06-02',size:'1.5 GB'},
+    {id:'CR003',show:'News at One',operator:'James Mwaniki',studio:'A',duration:'1:00:00',date:'2026-06-02',size:'380 MB'},
+    {id:'CR004',show:'Evening Drive',operator:'Mike Oduya',studio:'A',duration:'3:30:00',date:'2026-06-01',size:'1.1 GB'},
+  ],
+  news: [
+    {id:'NS001',title:'Youth Entrepreneurship Forum 2026 Kicks Off in Mombasa',journalist:'Zawadi Mwangi',editor:'Amina Kamau',status:'Published',cat:'Business',tags:['Youth','Business','Mombasa'],date:'2026-06-03'},
+    {id:'NS002',title:'New Broadcasting Regulations Affect Community Stations',journalist:'Peter Kariuki',editor:null,status:'Review',cat:'Media',tags:['Broadcasting','Policy'],date:'2026-06-02'},
+    {id:'NS003',title:'Swahili Language Preservation Project Gains Momentum',journalist:'Zawadi Mwangi',editor:null,status:'Draft',cat:'Culture',tags:['Language','Culture'],date:'2026-06-01'},
+    {id:'NS004',title:'Annual Tech Festival Returns to Coast This August',journalist:'Mark Ochieng',editor:'Amina Kamau',status:'Published',cat:'Technology',tags:['Tech','Events'],date:'2026-05-30'},
+  ],
+  videoBookings: [
+    {id:'VB001',title:'Graduation Ceremony',client:'Student Affairs',date:'2026-06-15',status:'Approved',crew:['Brian Otieno','Grace Achieng'],equipment:['Sony FX3','DJI Ronin-S']},
+    {id:'VB002',title:'Alumni Podcast Episode 12',client:'Alumni Office',date:'2026-06-08',status:'Requested',crew:['Marcus Njeru'],equipment:['Blackmagic ATEM']},
+    {id:'VB003',title:'News Segment: Coast Floods',client:'News Dept',date:'2026-06-04',status:'Completed',crew:['Jane Wanjiru'],equipment:['Sony FX3']},
+  ],
+  fmStatus: 'online',
+  fmLastCheck: '2026-06-03 09:45 AM',
+  fmUptime: '99.2%',
+  schedule: {
+    Mon:['05:00 — Morning Devotion','06:00 — Morning Drive w/ Mike','10:00 — Campus Connect','12:00 — Midday Mix','14:00 — Afternoon Vibes','17:00 — Drive Time','20:00 — Night Frequency'],
+    Tue:['05:00 — Morning Devotion','06:00 — Morning Drive w/ Sarah','10:00 — Tech Talk Tuesday','12:00 — Midday Mix','14:00 — Afternoon Vibes','18:00 — Jazz After Dark'],
+    Wed:['05:00 — Morning Devotion','06:00 — Morning Drive w/ Mike','11:00 — Swahili Hour','12:00 — Midday Mix','14:00 — Sports Central','17:00 — Drive Time'],
+  }
+};
+
+// ================== NAVIGATION ==================
+function navigate(page) {
+  state.page = page;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[onclick="navigate('${page}')"]`)?.classList.add('active');
+  const titles = {
+    dashboard:'Dashboard',equipment:'Equipment Management',projects:'Project Submissions',
+    software:'Software Subscriptions',wifi:'Wi-Fi Access',complaints:'Tickets & Feedback',
+    files:'Secure File Transfer',fm:'FM Station Monitor',calls:'Call Recordings',
+    schedule:'Radio Schedule',news:'News CMS',video:'Videography Booking',admin:'Admin Panel'
+  };
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+  document.getElementById('content').innerHTML = '';
+  const renderMap = {
+    dashboard:renderDashboard,equipment:renderEquipment,projects:renderProjects,
+    software:renderSoftware,wifi:renderWifi,complaints:renderComplaints,
+    files:renderFiles,fm:renderFM,calls:renderCalls,schedule:renderSchedule,
+    news:renderNews,video:renderVideo,admin:renderAdmin
+  };
+  if(renderMap[page]) renderMap[page]();
+}
+
+// ================== DASHBOARD ==================
+function renderDashboard() {
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card" onclick="navigate('equipment')">
+      <div class="stat-label">Equipment On Loan</div>
+      <div class="stat-value">4</div>
+      <div class="stat-change up">↑ 2 returned today</div>
+    </div>
+    <div class="stat-card" onclick="navigate('complaints')">
+      <div class="stat-label">Open Tickets</div>
+      <div class="stat-value">7</div>
+      <div class="stat-change down">↑ 3 since yesterday</div>
+    </div>
+    <div class="stat-card" onclick="navigate('fm')">
+      <div class="stat-label">FM Uptime (30d)</div>
+      <div class="stat-value">99.2%</div>
+      <div class="stat-change up">● Online Now</div>
+    </div>
+    <div class="stat-card" onclick="navigate('projects')">
+      <div class="stat-label">Pending Reviews</div>
+      <div class="stat-value">5</div>
+      <div class="stat-change">2 due this week</div>
+    </div>
+    <div class="stat-card" onclick="navigate('software')">
+      <div class="stat-label">Active Licenses</div>
+      <div class="stat-value">5</div>
+      <div class="stat-change amber">1 expiring soon</div>
+    </div>
+    <div class="stat-card" onclick="navigate('calls')">
+      <div class="stat-label">Calls Today</div>
+      <div class="stat-value">12</div>
+      <div class="stat-change up">3.2 hrs avg duration</div>
+    </div>
+  </div>
+
+  <div class="fm-banner online" id="fm-live-banner">
+    <div class="fm-pulse online"></div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--green)">FM 91.5 — ONLINE</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px">Last checked: ${state.fmLastCheck} · Uptime: ${state.fmUptime}</div>
+    </div>
+    <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="navigate('fm')">View Reports</button>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Recent Activity</div>
+          <div class="card-sub">Latest system events</div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-time">Today 9:45 AM</div><div class="timeline-text">Brian Otieno checked out <strong>Rode NTG5 Mic</strong></div></div>
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--green)"></div><div class="timeline-time">Today 9:12 AM</div><div class="timeline-text">News story published: <em>Youth Entrepreneurship Forum</em></div></div>
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--amber)"></div><div class="timeline-time">Today 8:30 AM</div><div class="timeline-text">New ticket #TKT004 opened — High priority</div></div>
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--purple)"></div><div class="timeline-time">Yesterday 6:00 PM</div><div class="timeline-text">Evening Drive recording archived — 3h 30min</div></div>
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--green)"></div><div class="timeline-time">Yesterday 2:15 PM</div><div class="timeline-text">Videography booking #VB003 marked complete</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Broadcast Analytics</div>
+        <div class="card-sub">Calls & Air Time — Last 7 Days</div>
+      </div>
+      <div id="dash-chart" style="height:180px"></div>
+      <div class="divider"></div>
+      <div class="grid-3" style="gap:12px;text-align:center">
+        <div><div style="font-size:20px;font-weight:700;color:var(--accent)">84h</div><div style="font-size:11px;color:var(--text3)">Air Time</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--green)">42</div><div style="font-size:11px;color:var(--text3)">Call Records</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--purple)">8</div><div style="font-size:11px;color:var(--text3)">News Published</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Equipment Requests</div>
+        <div><button class="btn btn-outline btn-sm" onclick="navigate('equipment')">View All</button></div>
+      </div>
+      <table><thead><tr><th>Item</th><th>Student</th><th>Status</th></tr></thead><tbody>
+        <tr><td>Sony FX3 Camera</td><td>Kelvin M.</td><td><span class="badge amber">Pending</span></td></tr>
+        <tr><td>Arri Skypanel</td><td>Faith W.</td><td><span class="badge amber">Pending</span></td></tr>
+        <tr><td>DJI Ronin-S</td><td>Brian O.</td><td><span class="badge green">Approved</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Today's Radio Schedule</div>
+        <div><button class="btn btn-outline btn-sm" onclick="navigate('schedule')">Full Schedule</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${(state.schedule.Wed||[]).slice(0,5).map(s=>`<div class="show-slot filled"><div style="font-size:12px;color:var(--accent);font-family:var(--mono)">${s.split(' — ')[0]}</div><div style="color:var(--text)">${s.split(' — ')[1]||''}</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+  renderBarChart('dash-chart');
+}
+
+function renderBarChart(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const data = [12,18,15,22,19,24,20];
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const max = Math.max(...data);
+  el.innerHTML = `<div style="display:flex;align-items:flex-end;height:100%;gap:6px;padding:8px 0">
+    ${data.map((v,i)=>`
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%">
+      <div style="flex:1;width:100%;display:flex;align-items:flex-end">
+        <div style="width:100%;height:${(v/max*100)}%;background:${i===2?'var(--accent)':'rgba(79,142,247,0.35)'};border-radius:4px 4px 0 0;transition:height 0.5s ${i*0.05}s"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3)">${days[i]}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ================== EQUIPMENT ==================
+function renderEquipment() {
+  const el = document.getElementById('content');
+  const statuses = {Available:'green','Checked Out':'amber','Under Repair':'red',Retired:'gray'};
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Items</div><div class="stat-value">${state.equipment.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Available</div><div class="stat-value" style="color:var(--green)">${state.equipment.filter(e=>e.status==='Available').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Checked Out</div><div class="stat-value" style="color:var(--amber)">${state.equipment.filter(e=>e.status==='Checked Out').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Under Repair</div><div class="stat-value" style="color:var(--red)">${state.equipment.filter(e=>e.status==='Under Repair').length}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">Equipment Inventory</div></div>
+      <div style="display:flex;gap:8px">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Search inventory..." oninput="filterEquipment(this.value)"></div>
+        <button class="btn btn-primary btn-sm" onclick="openAddEquipment()">+ Add Item</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="equipment-table"><thead><tr>
+        <th>ID</th><th>Name</th><th>Category</th><th>Serial #</th><th>Condition</th><th>Status</th><th>Borrower</th><th>Actions</th>
+      </tr></thead><tbody id="equipment-tbody">
+        ${state.equipment.map(e=>`<tr>
+          <td><span style="font-family:var(--mono);color:var(--text3);font-size:12px">${e.id}</span></td>
+          <td><strong>${e.name}</strong></td>
+          <td><span class="tag">${e.cat}</span></td>
+          <td><span style="font-family:var(--mono);font-size:11px">${e.serial}</span></td>
+          <td>${e.condition}</td>
+          <td><span class="badge ${statuses[e.status]||'gray'}">${e.status}</span></td>
+          <td>${e.borrower||'<span style="color:var(--text3)">—</span>'}</td>
+          <td><button class="btn btn-ghost btn-sm" onclick="showToast('${e.name} details opened')">View</button>
+          ${e.status==='Available'?`<button class="btn btn-outline btn-sm" onclick="checkoutItem('${e.id}')">Check Out</button>`:''}
+          ${e.status==='Checked Out'?`<button class="btn btn-success btn-sm" onclick="returnItem('${e.id}')">Return</button>`:''}
+          </td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Pending Requests</div><span class="badge amber">3 pending</span></div>
+    <table><thead><tr><th>Request ID</th><th>Student</th><th>Item</th><th>Dates</th><th>Purpose</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td><span style="font-family:var(--mono);font-size:11px">REQ-001</span></td><td>Kelvin Mwangi</td><td>Sony FX3 Camera</td><td>Jun 5–8</td><td>Documentary shoot</td><td><button class="btn btn-success btn-sm" onclick="showToast('Request REQ-001 approved')">Approve</button> <button class="btn btn-danger btn-sm" onclick="showToast('Request REQ-001 rejected')">Reject</button></td></tr>
+      <tr><td><span style="font-family:var(--mono);font-size:11px">REQ-002</span></td><td>Faith Wambui</td><td>Arri Skypanel S60</td><td>Jun 10–12</td><td>Photography project</td><td><button class="btn btn-success btn-sm" onclick="showToast('Request REQ-002 approved')">Approve</button> <button class="btn btn-danger btn-sm" onclick="showToast('Request REQ-002 rejected')">Reject</button></td></tr>
+      <tr><td><span style="font-family:var(--mono);font-size:11px">REQ-003</span></td><td>Marcus Njeru</td><td>Sennheiser HD 800</td><td>Jun 6–7</td><td>Podcast recording</td><td><button class="btn btn-success btn-sm" onclick="showToast('Request REQ-003 approved')">Approve</button> <button class="btn btn-danger btn-sm" onclick="showToast('Request REQ-003 rejected')">Reject</button></td></tr>
+    </tbody></table>
+  </div>`;
+}
+
+function filterEquipment(q){
+  const rows = document.querySelectorAll('#equipment-tbody tr');
+  rows.forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'});
+}
+function checkoutItem(id){
+  const item = state.equipment.find(e=>e.id===id);
+  if(item){item.status='Checked Out';item.borrower='Test User';renderEquipment();showToast(item.name+' checked out');}
+}
+function returnItem(id){
+  const item = state.equipment.find(e=>e.id===id);
+  if(item){item.status='Available';item.borrower=null;renderEquipment();showToast(item.name+' returned');}
+}
+function openAddEquipment(){
+  openModal('Add Equipment Item',`
+    <div class="grid-2"><div class="form-group"><label>Item Name</label><input type="text" placeholder="e.g. Sony A7 IV"></div>
+    <div class="form-group"><label>Category</label><select><option>Camera</option><option>Audio</option><option>Lighting</option><option>Stabilizer</option><option>Other</option></select></div></div>
+    <div class="grid-2"><div class="form-group"><label>Serial Number</label><input type="text" placeholder="SN-YYYY-XXX"></div>
+    <div class="form-group"><label>Condition</label><select><option>Good</option><option>Fair</option><option>Poor</option></select></div></div>
+    <div class="form-group"><label>Purchase Date</label><input type="date"></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="showToast('Equipment added successfully');closeModal()">Add Item</button>`);
+}
+
+// ================== PROJECTS ==================
+function renderProjects() {
+  const el = document.getElementById('content');
+  const statuses = {Submitted:'blue','Under Review':'amber',Graded:'green',Rejected:'red'};
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${state.projects.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Submitted</div><div class="stat-value" style="color:var(--accent)">${state.projects.filter(p=>p.status==='Submitted').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Under Review</div><div class="stat-value" style="color:var(--amber)">${state.projects.filter(p=>p.status==='Under Review').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Graded</div><div class="stat-value" style="color:var(--green)">${state.projects.filter(p=>p.status==='Graded').length}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Project Submissions</div>
+      <button class="btn btn-primary btn-sm" onclick="openSubmitProject()">+ New Submission</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>ID</th><th>Title</th><th>Student</th><th>Lecturer</th><th>Type</th><th>Status</th><th>Grade</th><th>Actions</th>
+    </tr></thead><tbody>
+      ${state.projects.map(p=>`<tr>
+        <td><span style="font-family:var(--mono);color:var(--text3);font-size:12px">${p.id}</span></td>
+        <td><strong>${p.title}</strong></td>
+        <td>${p.student}</td>
+        <td>${p.lecturer}</td>
+        <td><span class="tag">${p.type}</span></td>
+        <td><span class="badge ${statuses[p.status]||'gray'}">${p.status}</span></td>
+        <td>${p.grade?`<strong style="color:var(--green)">${p.grade}</strong>`:'<span style="color:var(--text3)">—</span>'}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Viewing ${p.id}')">View</button>
+          ${p.status==='Submitted'?`<button class="btn btn-outline btn-sm" onclick="reviewProject('${p.id}')">Review</button>`:''}
+          ${p.status==='Under Review'?`<button class="btn btn-success btn-sm" onclick="gradeProject('${p.id}')">Grade</button>`:''}
+        </td>
+      </tr>`).join('')}
+    </tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Version History</div><div class="card-sub">PRJ001 — News Documentary</div></div>
+    <div class="timeline">
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-time">Jun 1, 2026 — v3</div><div class="timeline-text">Updated edit with feedback from lecturer. Final cut submitted. <span class="tag">MP4</span><span class="tag">2.4 GB</span></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:var(--amber)"></div><div class="timeline-time">May 30, 2026 — v2</div><div class="timeline-text">Revised narration and colour grading. <span class="tag">MP4</span><span class="tag">2.1 GB</span></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:var(--text3)"></div><div class="timeline-time">May 28, 2026 — v1</div><div class="timeline-text">Initial submission. <span class="tag">MP4</span><span class="tag">1.9 GB</span></div></div>
+    </div>
+  </div>`;
+}
+
+function reviewProject(id){
+  const p = state.projects.find(x=>x.id===id);
+  if(p){p.status='Under Review';renderProjects();showToast('Project moved to review');}
+}
+function gradeProject(id){
+  openModal('Grade Project',`
+    <div class="form-group"><label>Grade</label><select><option>A+</option><option>A</option><option>A-</option><option>B+</option><option>B</option><option>B-</option><option>C+</option><option>C</option></select></div>
+    <div class="form-group"><label>Feedback</label><textarea placeholder="Provide detailed feedback for the student..."></textarea></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="(()=>{const p=state.projects.find(x=>x.id==='${id}');if(p){p.status='Graded';p.grade='A-';}renderProjects();closeModal();showToast('Project graded successfully')})()">Submit Grade</button>`);
+}
+function openSubmitProject(){
+  openModal('Submit Project',`
+    <div class="form-group"><label>Project Title</label><input type="text" placeholder="Enter project title"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Project Type</label><select><option>Video</option><option>Audio</option><option>PDF</option><option>ZIP</option></select></div>
+      <div class="form-group"><label>Lecturer</label><select><option>Dr. Odhiambo</option><option>Prof. Kariuki</option></select></div>
+    </div>
+    <div class="upload-zone" onclick="showToast('File picker opened')">
+      <span class="icon">📎</span>
+      <div style="font-weight:600;margin-bottom:6px">Drop files here or click to upload</div>
+      <div style="font-size:12px;color:var(--text3)">Supports PDF, DOCX, ZIP, MP4, Audio files · Max 2GB</div>
+    </div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="showToast('Project submitted successfully');closeModal()">Submit</button>`);
+}
+
+// ================== SOFTWARE ==================
+function renderSoftware() {
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Licenses</div><div class="stat-value">${state.software.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Seats</div><div class="stat-value">${state.software.reduce((a,s)=>a+s.seats,0)}</div></div>
+    <div class="stat-card"><div class="stat-label">Used Seats</div><div class="stat-value" style="color:var(--accent)">${state.software.reduce((a,s)=>a+s.used,0)}</div></div>
+    <div class="stat-card"><div class="stat-label">Expiring Soon</div><div class="stat-value" style="color:var(--amber)">${state.software.filter(s=>s.status==='Expiring Soon').length}</div></div>
+  </div>
+  ${state.software.map(s=>`
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:flex-start;gap:16px">
+      <div style="width:44px;height:44px;background:rgba(79,142,247,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">💿</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <strong style="font-size:14px">${s.name}</strong>
+          <span class="badge ${s.status==='Active'?'green':s.status==='Expiring Soon'?'amber':'red'}">${s.status}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px">${s.vendor} · Expires ${s.expiry} · ${s.cost}</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px">
+              <span>Seat Usage</span><span style="color:var(--text);font-weight:600">${s.used}/${s.seats} seats</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${s.used/s.seats*100}%;background:${s.used/s.seats>0.9?'var(--red)':s.used/s.seats>0.7?'var(--amber)':'var(--accent)'}"></div></div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="manageLicense('${s.id}')">Manage Seats</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Renewal alert set for ${s.name}')">Set Alert</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('')}
+  <button class="btn btn-primary" onclick="showToast('New license dialog opened')">+ Add License</button>`;
+}
+
+function manageLicense(id){
+  const sw = state.software.find(s=>s.id===id);
+  if(!sw)return;
+  openModal(`Manage Seats — ${sw.name}`,`
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+      <span>Total Seats: <strong>${sw.seats}</strong></span>
+      <span>Used: <strong style="color:var(--accent)">${sw.used}</strong></span>
+      <span>Free: <strong style="color:var(--green)">${sw.seats-sw.used}</strong></span>
+    </div>
+    <div class="form-group"><label>Allocate to User</label><input type="text" placeholder="Enter student/staff ID or name"></div>
+    <div class="form-group"><label>Duration</label><select><option>Academic Year</option><option>Semester</option><option>1 Month</option><option>Custom</option></select></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-top:8px">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px">CURRENT ALLOCATIONS</div>
+      <div style="font-size:13px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between"><span>Brian Otieno</span><button class="btn btn-danger btn-sm" onclick="showToast('Seat revoked')">Revoke</button></div>
+        <div style="display:flex;justify-content:space-between"><span>Grace Achieng</span><button class="btn btn-danger btn-sm" onclick="showToast('Seat revoked')">Revoke</button></div>
+      </div>
+    </div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Close</button><button class="btn btn-primary" onclick="showToast('Seat allocated');closeModal()">Allocate Seat</button>`);
+}
+
+// ================== WIFI ==================
+function renderWifi() {
+  const el = document.getElementById('content');
+  const statuses = {Active:'green',Pending:'amber',Expired:'red'};
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Active Devices</div><div class="stat-value" style="color:var(--green)">${state.wifi.filter(w=>w.status==='Active').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--amber)">${state.wifi.filter(w=>w.status==='Pending').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Expired</div><div class="stat-value" style="color:var(--red)">${state.wifi.filter(w=>w.status==='Expired').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Requests</div><div class="stat-value">${state.wifi.length}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Device Access Requests</div>
+      <button class="btn btn-primary btn-sm" onclick="openWifiRequest()">+ Request Access</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>Device</th><th>Type</th><th>MAC Address</th><th>User</th><th>Purpose</th><th>Duration</th><th>Status</th><th>Actions</th>
+    </tr></thead><tbody>
+      ${state.wifi.map(w=>`<tr>
+        <td><strong>${w.name}</strong></td>
+        <td><span class="tag">${w.type}</span></td>
+        <td><span style="font-family:var(--mono);font-size:11px">${w.mac}</span></td>
+        <td>${w.user}</td>
+        <td style="color:var(--text2)">${w.purpose}</td>
+        <td>${w.duration}</td>
+        <td><span class="badge ${statuses[w.status]||'gray'}">${w.status}</span></td>
+        <td>
+          ${w.status==='Pending'?`<button class="btn btn-success btn-sm" onclick="approveWifi('${w.id}')">Approve</button> <button class="btn btn-danger btn-sm" onclick="showToast('Request rejected')">Reject</button>`:''}
+          ${w.status==='Active'?`<button class="btn btn-danger btn-sm" onclick="revokeWifi('${w.id}')">Revoke</button>`:''}
+          ${w.status==='Expired'?`<button class="btn btn-outline btn-sm" onclick="showToast('Access renewed')">Renew</button>`:''}
+        </td>
+      </tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+function approveWifi(id){const w=state.wifi.find(x=>x.id===id);if(w){w.status='Active';renderWifi();showToast('Access approved for '+w.name);}}
+function revokeWifi(id){const w=state.wifi.find(x=>x.id===id);if(w){w.status='Expired';renderWifi();showToast('Access revoked for '+w.name);}}
+function openWifiRequest(){
+  openModal('Request Wi-Fi Access',`
+    <div class="form-group"><label>Device Name</label><input type="text" placeholder="e.g. My MacBook Pro"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Device Type</label><select><option>Laptop</option><option>Mobile</option><option>Tablet</option><option>Desktop</option></select></div>
+      <div class="form-group"><label>MAC Address</label><input type="text" placeholder="XX:XX:XX:XX:XX:XX"></div>
+    </div>
+    <div class="form-group"><label>Purpose</label><input type="text" placeholder="e.g. Project work, research"></div>
+    <div class="form-group"><label>Duration</label><select><option>7 days</option><option>14 days</option><option>30 days</option><option>Semester</option></select></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="showToast('Wi-Fi access requested');closeModal()">Submit Request</button>`);
+}
+
+// ================== COMPLAINTS ==================
+function renderComplaints() {
+  const el = document.getElementById('content');
+  const priorities = {High:'red',Medium:'amber',Low:'blue'};
+  const statuses2 = {Open:'blue','In Progress':'amber',Resolved:'green'};
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Open</div><div class="stat-value" style="color:var(--accent)">${state.tickets.filter(t=>t.status==='Open').length}</div></div>
+    <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--amber)">${state.tickets.filter(t=>t.status==='In Progress').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Resolved</div><div class="stat-value" style="color:var(--green)">${state.tickets.filter(t=>t.status==='Resolved').length}</div></div>
+    <div class="stat-card"><div class="stat-label">High Priority</div><div class="stat-value" style="color:var(--red)">${state.tickets.filter(t=>t.priority==='High').length}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Support Tickets</div>
+      <button class="btn btn-primary btn-sm" onclick="openNewTicket()">+ New Ticket</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>Ticket ID</th><th>Category</th><th>Priority</th><th>Description</th><th>Status</th><th>Assignee</th><th>Actions</th>
+    </tr></thead><tbody>
+      ${state.tickets.map(t=>`<tr>
+        <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">${t.id}</span></td>
+        <td><span class="tag">${t.cat}</span></td>
+        <td><span class="badge ${priorities[t.priority]}">${t.priority}</span></td>
+        <td style="max-width:240px;color:var(--text2)">${t.desc}</td>
+        <td><span class="badge ${statuses2[t.status]}">${t.status}</span></td>
+        <td>${t.assignee||'<span style="color:var(--text3)">Unassigned</span>'}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="viewTicket('${t.id}')">View</button>
+          ${t.status!=='Resolved'?`<button class="btn btn-success btn-sm" onclick="resolveTicket('${t.id}')">Resolve</button>`:''}
+        </td>
+      </tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+function resolveTicket(id){const t=state.tickets.find(x=>x.id===id);if(t){t.status='Resolved';renderComplaints();showToast('Ticket '+id+' resolved');}}
+function viewTicket(id){
+  const t=state.tickets.find(x=>x.id===id);if(!t)return;
+  openModal('Ticket '+t.id,`
+    <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;color:var(--text)">${t.desc}</div>
+    </div>
+    <div class="grid-2">
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">CATEGORY</div><span class="tag">${t.cat}</span></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">PRIORITY</div><span class="badge ${t.priority==='High'?'red':t.priority==='Medium'?'amber':'blue'}">${t.priority}</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="form-group"><label>Add Comment</label><textarea placeholder="Update or comment on this ticket..."></textarea></div>
+    <div class="form-group"><label>Assign To</label><select><option>IT Dept</option><option>Technical Team</option><option>Admin</option></select></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Close</button><button class="btn btn-primary" onclick="showToast('Ticket updated');closeModal()">Update Ticket</button>`);
+}
+function openNewTicket(){
+  openModal('New Support Ticket',`
+    <div class="grid-2">
+      <div class="form-group"><label>Category</label><select><option>Technical</option><option>Facilities</option><option>Equipment</option><option>Admin</option><option>Content</option></select></div>
+      <div class="form-group"><label>Priority</label><select><option>Low</option><option>Medium</option><option>High</option></select></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea placeholder="Describe the issue in detail..."></textarea></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="showToast('Ticket submitted');closeModal()">Submit Ticket</button>`);
+}
+
+// ================== FILES ==================
+function renderFiles() {
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Upload File</div>
+        <div class="upload-zone" id="drop-zone"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="event.preventDefault();this.classList.remove('drag');simulateUpload()"
+          onclick="simulateUpload()">
+          <span class="icon">⬆️</span>
+          <div style="font-weight:600;margin-bottom:6px">Drop files here or click to upload</div>
+          <div style="font-size:12px;color:var(--text3)">Max file size: 5 GB · All formats supported</div>
+        </div>
+        <div id="upload-progress" style="display:none;margin-top:16px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>Uploading documentary_v3.mp4</span><span id="pct">0%</span></div>
+          <div class="progress-bar" style="height:8px"><div class="progress-fill" id="prog-fill" style="width:0%;background:var(--accent)"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Share Settings</div>
+        <div class="form-group"><label>Expiry</label><select><option>24 hours</option><option>7 days</option><option>30 days</option><option>No expiry</option></select></div>
+        <div class="form-group"><label>Download Limit</label><input type="number" value="5" min="1"></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-primary" style="flex:1" onclick="showToast('Share link generated: hub.sp/dl/x9k2m')">Generate Link</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">Shared Files</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${[{name:'news_segment_coast_floods.mp4',size:'2.1 GB',expiry:'Expires Jun 10',dl:3,max:5},
+             {name:'brand_identity_package.zip',size:'450 MB',expiry:'Expires Jun 7',dl:1,max:10},
+             {name:'podcast_ep12_raw.wav',size:'890 MB',expiry:'Expires Jun 15',dl:0,max:3}
+          ].map(f=>`
+          <div style="background:var(--bg3);border-radius:10px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div>
+                <div style="font-weight:600;font-size:13px;margin-bottom:2px">📎 ${f.name}</div>
+                <div style="font-size:11px;color:var(--text3)">${f.size} · ${f.expiry}</div>
+              </div>
+              <span class="badge green">${f.dl}/${f.max} dl</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-sm" onclick="showToast('Link copied to clipboard')">Copy Link</button>
+              <button class="btn btn-ghost btn-sm" onclick="openQR('${f.name}')">QR Code</button>
+              <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="showToast('File deleted')">Delete</button>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function simulateUpload(){
+  const prog = document.getElementById('upload-progress');
+  const fill = document.getElementById('prog-fill');
+  const pct = document.getElementById('pct');
+  if(!prog)return;
+  prog.style.display='block';
+  let p=0;
+  const iv=setInterval(()=>{p+=Math.random()*8;if(p>=100){p=100;clearInterval(iv);showToast('Upload complete!');}
+    fill.style.width=p+'%';pct.textContent=Math.floor(p)+'%';},100);
+}
+function openQR(name){
+  const cells = Array.from({length:49},()=>Math.random()>0.5?'var(--accent)':'transparent');
+  const corners = [0,1,2,3,4,5,6,7,14,42,43,44,45,46,47,48];
+  openModal('QR Download Code',`
+    <div class="qr-box">
+      <div class="qr-graphic">${cells.map((c,i)=>`<div class="qr-cell" style="background:${corners.includes(i)?'var(--accent)':c}"></div>`).join('')}</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">${name}</div>
+      <div style="font-size:11px;color:var(--text3)">Scan to download · Valid 24 hours</div>
+    </div>
+  `,`<button class="btn btn-primary" onclick="showToast('QR saved');closeModal()">Save QR</button>`);
+}
+
+// ================== FM STATION ==================
+function renderFM(){
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <div class="fm-banner ${state.fmStatus}" id="fm-status-banner">
+    <div class="fm-pulse ${state.fmStatus}"></div>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:15px;color:${state.fmStatus==='online'?'var(--green)':'var(--red)'}">FM 91.5 — ${state.fmStatus.toUpperCase()}</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px">Last checked: ${state.fmLastCheck} · Auto-check every 5 minutes</div>
+    </div>
+    <button class="btn ${state.fmStatus==='online'?'btn-danger':'btn-success'} btn-sm" onclick="toggleFM()">${state.fmStatus==='online'?'Report Outage':'Mark Restored'}</button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">30-Day Uptime</div><div class="stat-value" style="color:var(--green)">99.2%</div></div>
+    <div class="stat-card"><div class="stat-label">Outages This Month</div><div class="stat-value">2</div></div>
+    <div class="stat-card"><div class="stat-label">Total Downtime</div><div class="stat-value">3h 42m</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Outage Duration</div><div class="stat-value">1h 51m</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Outage History</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="showToast('CSV exported')">Export CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('PDF report generated')">Export PDF</button>
+      </div>
+    </div>
+    <table><thead><tr><th>Date</th><th>Start Time</th><th>End Time</th><th>Duration</th><th>Reported By</th><th>Resolution</th></tr></thead>
+    <tbody>
+      <tr><td>May 28, 2026</td><td>14:32</td><td>16:18</td><td>1h 46m</td><td>Auto-monitor</td><td><span class="badge green">Resolved</span></td></tr>
+      <tr><td>May 15, 2026</td><td>03:15</td><td>05:11</td><td>1h 56m</td><td>Auto-monitor</td><td><span class="badge green">Resolved</span></td></tr>
+      <tr><td>Apr 30, 2026</td><td>22:45</td><td>23:12</td><td>27m</td><td>Station Manager</td><td><span class="badge green">Resolved</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Signal Strength — Last 24hrs</div></div>
+    <div id="fm-chart" style="height:120px;margin-top:8px"></div>
+  </div>`;
+  renderFMChart();
+}
+
+function renderFMChart(){
+  const el = document.getElementById('fm-chart');
+  if(!el)return;
+  const data = Array.from({length:24},()=>85+Math.random()*15);
+  const max=Math.max(...data);
+  el.innerHTML=`<div style="display:flex;align-items:flex-end;height:100%;gap:2px">
+    ${data.map((v,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%">
+      <div style="flex:1;width:100%;display:flex;align-items:flex-end">
+        <div style="width:100%;height:${v/max*100}%;background:${v<88?'var(--red)':v<92?'var(--amber)':'var(--green)'};border-radius:2px 2px 0 0;opacity:0.8"></div>
+      </div>
+      ${i%6===0?`<div style="font-size:9px;color:var(--text3)">${i}:00</div>`:''}</div>`).join('')}
+  </div>`;
+}
+
+function toggleFM(){
+  state.fmStatus = state.fmStatus==='online'?'offline':'online';
+  state.fmLastCheck = 'Just now';
+  renderFM();
+  showToast(state.fmStatus==='online'?'FM station marked as restored':'FM outage reported. Email alerts sent.');
+}
+
+// ================== CALLS ==================
+function renderCalls(){
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Recordings</div><div class="stat-value">${state.calls.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Today's Calls</div><div class="stat-value">1</div></div>
+    <div class="stat-card"><div class="stat-label">Total Storage</div><div class="stat-value">4.2 GB</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Duration</div><div class="stat-value">3h 3m</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Call Recording Library</div>
+      <div class="search-box"><span>🔍</span><input type="text" placeholder="Search recordings..."></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${state.calls.map(c=>`
+      <div style="background:var(--bg3);border-radius:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div style="font-weight:600;font-size:14px">${c.show}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">🎙️ Studio ${c.studio} · ${c.operator} · ${c.date}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--mono);font-size:13px;font-weight:600">${c.duration}</div>
+            <div style="font-size:11px;color:var(--text3)">${c.size}</div>
+          </div>
+        </div>
+        <div class="audio-player">
+          <button class="play-btn" onclick="this.textContent=this.textContent==='▶'?'⏸':'▶'">▶</button>
+          <div class="waveform">${Array.from({length:40},()=>`<div class="wave-bar" style="height:${4+Math.random()*22}px"></div>`).join('')}</div>
+          <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">0:00</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="showToast('${c.show} downloading...')">⬇️ Download</button>
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Sharing link copied')">🔗 Share</button>
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Transcript generated')">📝 Transcript</button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ================== SCHEDULE ==================
+function renderSchedule(){
+  const el = document.getElementById('content');
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const colors = ['var(--accent)','var(--purple)','var(--green)','var(--amber)','var(--cyan)','var(--pink)','var(--red)'];
+  el.innerHTML = `
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header">
+      <div class="card-title">Radio Programme Schedule — Week of June 3, 2026</div>
+      <button class="btn btn-primary btn-sm" onclick="openAddShow()">+ Add Show</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">
+      ${days.map((d,di)=>`
+      <div>
+        <div style="font-size:12px;font-weight:700;color:${di===2?'var(--accent)':'var(--text3)'};margin-bottom:8px;text-align:center;padding:6px;background:${di===2?'rgba(79,142,247,0.1)':'transparent'};border-radius:6px">${d}</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          ${(state.schedule[d]||Array.from({length:5},(_,i)=>['05:00 — Morning Show','09:00 — Campus Hour','12:00 — Midday Mix','15:00 — Afternoon','18:00 — Evening'][i])).map((s,si)=>`
+          <div style="background:rgba(${di===2?'79,142,247':'100,100,120'},0.08);border:1px solid rgba(${di===2?'79,142,247':'100,100,120'},0.15);border-radius:6px;padding:6px 8px;cursor:pointer" onclick="showToast('Editing show: ${s.split(' — ')[1]||s}')">
+            <div style="font-size:9px;color:${colors[di]};font-family:var(--mono);font-weight:600">${s.split(' — ')[0]}</div>
+            <div style="font-size:11px;color:var(--text);margin-top:1px;line-height:1.3">${s.split(' — ')[1]||s}</div>
+          </div>`).join('')}
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Presenter Assignments</div>
+      <table><thead><tr><th>Presenter</th><th>Show</th><th>Days</th></tr></thead><tbody>
+        <tr><td>Mike Oduya</td><td>Morning Drive</td><td><span class="tag">Mon</span><span class="tag">Wed</span><span class="tag">Fri</span></td></tr>
+        <tr><td>Sarah Kimani</td><td>Morning Drive</td><td><span class="tag">Tue</span><span class="tag">Thu</span></td></tr>
+        <tr><td>James Mwaniki</td><td>News at One</td><td><span class="tag">Mon-Fri</span></td></tr>
+        <tr><td>Grace Achieng</td><td>Afternoon Vibes</td><td><span class="tag">Daily</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Frequency Management</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:var(--bg3);border-radius:8px;padding:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><strong>91.5 FM</strong><span class="badge green">Active</span></div>
+          <div style="font-size:12px;color:var(--text3)">Main broadcast · 24/7 · 5kW ERP</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><strong>Online Stream</strong><span class="badge green">Active</span></div>
+          <div style="font-size:12px;color:var(--text3)">Icecast server · hub.swahilipot.fm/live</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function openAddShow(){
+  openModal('Add Programme Show',`
+    <div class="form-group"><label>Show Name</label><input type="text" placeholder="e.g. The Breakfast Club"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Start Time</label><input type="time" value="06:00"></div>
+      <div class="form-group"><label>End Time</label><input type="time" value="09:00"></div>
+    </div>
+    <div class="form-group"><label>Presenter</label><select><option>Mike Oduya</option><option>Sarah Kimani</option><option>James Mwaniki</option><option>Grace Achieng</option></select></div>
+    <div class="form-group"><label>Days</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+        ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<label style="display:flex;align-items:center;gap:4px;font-size:13px;text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" style="width:auto"> ${d}</label>`).join('')}
+      </div>
+    </div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="showToast('Show added to schedule');closeModal()">Add Show</button>`);
+}
+
+// ================== NEWS CMS ==================
+function renderNews(){
+  const el = document.getElementById('content');
+  const statuses = {Published:'green',Review:'amber',Draft:'gray',Rejected:'red'};
+  el.innerHTML = `
+  <div class="tabs">
+    <div class="tab active" onclick="setTab(this,'tab-all')">All Stories</div>
+    <div class="tab" onclick="setTab(this,'tab-new')">Write Story</div>
+  </div>
+  <div id="tab-all">
+    <div class="stat-grid" style="margin-bottom:18px">
+      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-value" style="color:var(--green)">${state.news.filter(n=>n.status==='Published').length}</div></div>
+      <div class="stat-card"><div class="stat-label">In Review</div><div class="stat-value" style="color:var(--amber)">${state.news.filter(n=>n.status==='Review').length}</div></div>
+      <div class="stat-card"><div class="stat-label">Drafts</div><div class="stat-value">${state.news.filter(n=>n.status==='Draft').length}</div></div>
+      <div class="stat-card"><div class="stat-label">Rejected</div><div class="stat-value" style="color:var(--red)">${state.news.filter(n=>n.status==='Rejected').length}</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${state.news.map(n=>`
+      <div class="news-card" onclick="showToast('Opening: ${n.title}')">
+        <div style="display:flex;justify-content:space-between;align-items:start;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:600;margin-bottom:6px;line-height:1.4">${n.title}</div>
+            <div style="font-size:12px;color:var(--text3)">By ${n.journalist} · ${n.date} · ${n.cat}</div>
+            <div style="margin-top:8px">${n.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <span class="badge ${statuses[n.status]}">${n.status}</span>
+            <div style="display:flex;gap:4px">
+              ${n.status==='Review'?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();publishNews('${n.id}')">Publish</button>`:''}
+              ${n.status==='Review'?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();showToast('Story sent back for revision')">Reject</button>`:''}
+              ${n.status==='Draft'?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();submitNews('${n.id}')">Submit</button>`:''}
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div id="tab-new" style="display:none">
+    <div class="card">
+      <div class="form-group"><label>Story Title</label><input type="text" placeholder="Enter a compelling headline..."></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Category</label><select><option>Business</option><option>Culture</option><option>Technology</option><option>Media</option><option>Sports</option></select></div>
+        <div class="form-group"><label>Tags</label><input type="text" placeholder="Comma-separated tags"></div>
+      </div>
+      <div class="form-group"><label>Story Content</label>
+        <div class="rte-toolbar">
+          ${['B','I','U','H1','H2','""','🔗','📎','• ','1.','↩'].map(t=>`<button class="rte-btn" onclick="showToast('Format applied')">${t}</button>`).join('')}
+        </div>
+        <div class="rte-body" contenteditable="true">Start writing your story here. Use the toolbar above to format text, add links, or attach media files...</div>
+      </div>
+      <div class="upload-zone" style="padding:16px;text-align:left;display:flex;align-items:center;gap:12px" onclick="showToast('Media picker opened')">
+        <span style="font-size:24px">🖼️</span>
+        <div><div style="font-size:13px;font-weight:600">Attach Media</div><div style="font-size:11px;color:var(--text3)">Images, videos, audio files</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-outline" onclick="showToast('Draft saved')">Save Draft</button>
+        <button class="btn btn-primary" onclick="showToast('Story submitted for review')">Submit for Review</button>
+      </div>
+    </div>
+  </div>`;
+}
+function setTab(el,tabId){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-all','tab-new'].forEach(id=>{const t=document.getElementById(id);if(t)t.style.display=id===tabId?'block':'none';});
+}
+function publishNews(id){const n=state.news.find(x=>x.id===id);if(n){n.status='Published';renderNews();showToast('Story published!');}}
+function submitNews(id){const n=state.news.find(x=>x.id===id);if(n){n.status='Review';renderNews();showToast('Story submitted for editorial review');}}
+
+// ================== VIDEO ==================
+function renderVideo(){
+  const el = document.getElementById('content');
+  const statuses = {Approved:'green',Requested:'amber',Completed:'cyan',Cancelled:'red'};
+  el.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Bookings</div><div class="stat-value">${state.videoBookings.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Upcoming</div><div class="stat-value" style="color:var(--green)">${state.videoBookings.filter(v=>v.status==='Approved').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--amber)">${state.videoBookings.filter(v=>v.status==='Requested').length}</div></div>
+    <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value" style="color:var(--cyan)">${state.videoBookings.filter(v=>v.status==='Completed').length}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Videography Bookings</div>
+      <button class="btn btn-primary btn-sm" onclick="openVideoBooking()">+ Book Shoot</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${state.videoBookings.map(v=>`
+      <div style="background:var(--bg3);border-radius:10px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div>
+            <div style="font-size:15px;font-weight:600;margin-bottom:4px">🎬 ${v.title}</div>
+            <div style="font-size:12px;color:var(--text3)">Client: ${v.client} · Date: ${v.date}</div>
+            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+              ${v.crew.map(c=>`<span style="font-size:11px;background:rgba(79,142,247,0.1);color:var(--accent);padding:2px 8px;border-radius:4px">👤 ${c}</span>`).join('')}
+              ${v.equipment.map(eq=>`<span style="font-size:11px;background:var(--surface);color:var(--text3);padding:2px 8px;border-radius:4px">📦 ${eq}</span>`).join('')}
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <span class="badge ${statuses[v.status]}">${v.status}</span>
+            <div style="display:flex;gap:4px">
+              ${v.status==='Requested'?`<button class="btn btn-success btn-sm" onclick="approveVideo('${v.id}')">Approve</button>`:''}
+              ${v.status==='Approved'?`<button class="btn btn-outline btn-sm" onclick="completeVideo('${v.id}')">Mark Done</button>`:''}
+              <button class="btn btn-ghost btn-sm" onclick="showToast('Brief for ${v.title}')">Brief</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px">Footage Archive</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+      ${['Graduation 2025','Alumni Day','News Feature Mar','BFAN Interview','Studio Session','Event Coverage'].map((t,i)=>`
+      <div style="background:var(--bg3);border-radius:8px;overflow:hidden;cursor:pointer" onclick="showToast('Playing: ${t}')">
+        <div style="height:80px;background:linear-gradient(135deg,rgba(79,142,247,0.${3+i}),rgba(167,139,250,0.${2+i}));display:flex;align-items:center;justify-content:center;font-size:24px">🎞️</div>
+        <div style="padding:8px"><div style="font-size:12px;font-weight:600">${t}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">${(1+i*0.3).toFixed(1)} GB</div></div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+function approveVideo(id){const v=state.videoBookings.find(x=>x.id===id);if(v){v.status='Approved';renderVideo();showToast('Booking approved');}}
+function completeVideo(id){const v=state.videoBookings.find(x=>x.id===id);if(v){v.status='Completed';renderVideo();showToast('Booking marked complete');}}
+function openVideoBooking(){
+  openModal('Book Videography Shoot',`
+    <div class="form-group"><label>Production Title</label><input type="text" placeholder="e.g. Annual Conference Coverage"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Client / Department</label><input type="text" placeholder="Department or client name"></div>
+      <div class="form-group"><label>Shoot Date</label><input type="date"></div>
+    </div>
+    <div class="form-group"><label>Production Brief</label><textarea placeholder="Describe the shoot requirements, style, deliverables..."></textarea></div>
+    <div class="form-group"><label>Crew Required</label><input type="text" placeholder="e.g. 1 videographer, 1 sound recordist"></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="showToast('Booking request submitted');closeModal()">Submit Request</button>`);
+}
+
+// ================== ADMIN ==================
+function renderAdmin(){
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:16px">User Management</div>
+      <table><thead><tr><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+        ${[['Amina Kamau','Admin','Active'],['Brian Otieno','Student','Active'],['Grace Achieng','Student','Active'],['Dr. Odhiambo','Lecturer','Active'],['Mike Oduya','Presenter','Active'],['James Mwaniki','Editor','Active'],['IT Officer','IT Officer','Active']].map(([n,r,s])=>`
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:26px;height:26px;font-size:10px">${n.split(' ').map(x=>x[0]).join('')}</div>${n}</div></td>
+          <td><span class="tag">${r}</span></td>
+          <td><span class="badge green">${s}</span></td>
+          <td><button class="btn btn-ghost btn-sm" onclick="showToast('Editing ${n}')">Edit</button></td>
+        </tr>`).join('')}
+      </tbody></table>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="showToast('Add user dialog')">+ Add User</button>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title" style="margin-bottom:14px">System Health</div>
+        ${[['Database','PostgreSQL 15','healthy'],['Cache','Redis 7.2','healthy'],['Storage','MinIO — 2.4 TB free','healthy'],['Background Tasks','12 queued','warning'],['Web Server','Nginx + Gunicorn','healthy']].map(([name,detail,s])=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div><div style="font-size:13px;font-weight:600">${name}</div><div style="font-size:11px;color:var(--text3)">${detail}</div></div>
+          <span class="dot ${s==='healthy'?'green':s==='warning'?'amber':'red'}"></span>
+        </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">API Endpoints</div>
+        <div style="font-family:var(--mono);font-size:11px;line-height:2;color:var(--text3)">
+          ${['/api/v1/auth/','api/v1/equipment/','api/v1/projects/','api/v1/software/','api/v1/wifi/','api/v1/tickets/','api/v1/files/','api/v1/fm/','api/v1/recordings/','api/v1/schedule/','api/v1/news/','api/v1/video/'].map(e=>`<div><span style="color:var(--green)">GET </span><span style="color:var(--accent)">${e}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Audit Log</div>
+      <button class="btn btn-outline btn-sm" onclick="showToast('Audit log exported')">Export Log</button>
+    </div>
+    <table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Module</th><th>IP</th></tr></thead>
+    <tbody>
+      ${[['2026-06-03 09:45','Amina Kamau','LOGIN','Auth','41.90.64.12'],['2026-06-03 09:46','Amina Kamau','VIEW_DASHBOARD','Dashboard','41.90.64.12'],['2026-06-03 09:20','Brian Otieno','CHECKOUT_EQUIPMENT','Equipment','41.90.64.33'],['2026-06-03 09:12','Zawadi Mwangi','PUBLISH_STORY','News CMS','41.90.64.55'],['2026-06-03 08:30','System','AUTO_FM_CHECK','FM Monitor','10.0.0.1']].map(([ts,u,a,m,ip])=>`
+      <tr>
+        <td><span style="font-family:var(--mono);font-size:11px">${ts}</span></td>
+        <td>${u}</td>
+        <td><span class="badge blue">${a}</span></td>
+        <td><span class="tag">${m}</span></td>
+        <td><span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${ip}</span></td>
+      </tr>`).join('')}
+    </tbody></table>
+  </div>`;
+}
+
+// ================== MODAL HELPERS ==================
+function openModal(title, body, footer=''){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-footer').innerHTML = footer;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){
+  if(e && e.target!==document.getElementById('modal-overlay'))return;
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  m.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._to);
+  t._to = setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ================== BOOT ==================
+navigate('dashboard');
+</script>
+</body>
+</html>
