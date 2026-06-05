@@ -1,0 +1,1 @@
+export default{content:['./index.html','./src/**/*.{js,jsx}'],darkMode:'class',theme:{extend:{colors:{shms:{orange:'#F47A20',teal:'#00A99D',navy:'#1F2A44',bg:'#F8F9FA',text:'#1E293B',success:'#22C55E',warning:'#F59E0B',danger:'#EF4444',info:'#3B82F6',border:'#E5E7EB'}}}},plugins:[]};

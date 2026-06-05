@@ -1,0 +1,3 @@
+from django.contrib import admin
+from .models import *
+admin.site.register([Role,Permission,ActivityLog,UserSession,PasswordResetToken])
