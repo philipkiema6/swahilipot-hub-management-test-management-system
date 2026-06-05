@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SHMS – Swahilipot Hub Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --orange: #F47A20;
+  --teal: #00A99D;
+  --navy: #1F2A44;
+  --bg: #F8F9FA;
+  --text: #1E293B;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+  --border: #E5E7EB;
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --card-radius: 14px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --shadow: 0 2px 12px rgba(31,42,68,.08);
+  --shadow-md: 0 4px 24px rgba(31,42,68,.13);
+  --transition: .2s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--font-body);cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:var(--font-body)}
+
+/* ── LAYOUT ── */
+#app{display:flex;min-height:100vh}
+#sidebar{width:var(--sidebar-w);background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;transition:transform var(--transition)}
+#main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+#topbar{height:var(--header-h);background:#fff;border-bottom:1.5px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+#content{flex:1;padding:28px 32px;overflow-y:auto}
+
+/* ── SIDEBAR ── */
+.sb-logo{padding:22px 24px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo-icon{width:38px;height:38px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:16px;color:#fff}
+.sb-logo-text{font-family:var(--font-head);font-weight:700;font-size:14px;color:#fff;line-height:1.2}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.45);font-weight:400;font-family:var(--font-body)}
+.sb-nav{flex:1;overflow-y:auto;padding:14px 0}
+.sb-section{padding:6px 16px 2px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase;margin-top:10px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13.5px;color:rgba(255,255,255,.65);cursor:pointer;transition:all var(--transition);border-left:3px solid transparent;position:relative}
+.sb-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.sb-item.active{background:rgba(244,122,32,.12);color:var(--orange);border-left-color:var(--orange);font-weight:600}
+.sb-item .icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 7px;min-width:20px;text-align:center}
+.sb-user{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.sb-avatar{width:34px;height:34px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.sb-user-name{font-size:13px;color:#fff;font-weight:600}
+.sb-user-role{font-size:11px;color:rgba(255,255,255,.4)}
+
+/* ── TOPBAR ── */
+.tb-search{flex:1;max-width:380px;position:relative}
+.tb-search input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:9px 16px 9px 38px;font-size:13.5px;outline:none;transition:border var(--transition);color:var(--text)}
+.tb-search input:focus{border-color:var(--teal)}
+.tb-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:16px}
+.tb-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tb-icon-btn{width:38px;height:38px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;color:#64748b;cursor:pointer;transition:all var(--transition);position:relative}
+.tb-icon-btn:hover{border-color:var(--teal);color:var(--teal)}
+.tb-notif-dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--danger);border:2px solid #fff}
+.tb-page-title{font-family:var(--font-head);font-weight:700;font-size:17px;color:var(--navy)}
+.tb-breadcrumb{font-size:12px;color:#94a3b8;margin-left:6px}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--card-radius);border:1.5px solid var(--border);padding:22px 24px;box-shadow:var(--shadow)}
+.card-title{font-family:var(--font-head);font-weight:700;font-size:15px;color:var(--navy);margin-bottom:4px}
+.card-sub{font-size:12.5px;color:#94a3b8}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;margin-bottom:24px}
+.kpi{background:#fff;border-radius:var(--card-radius);border:1.5px solid var(--border);padding:20px 22px;position:relative;overflow:hidden;transition:transform var(--transition),box-shadow var(--transition)}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.kpi-accent{position:absolute;top:0;right:0;width:70px;height:70px;border-radius:0 var(--card-radius) 0 70px;opacity:.08}
+.kpi-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.kpi-val{font-family:var(--font-head);font-weight:800;font-size:28px;color:var(--navy);line-height:1}
+.kpi-label{font-size:12.5px;color:#64748b;margin-top:6px}
+.kpi-change{font-size:12px;font-weight:600;margin-top:8px;display:flex;align-items:center;gap:4px}
+.kpi-change.up{color:var(--success)}
+.kpi-change.down{color:var(--danger)}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px}
+.badge-success{background:#dcfce7;color:#15803d}
+.badge-warning{background:#fef9c3;color:#92400e}
+.badge-danger{background:#fee2e2;color:#b91c1c}
+.badge-info{background:#dbeafe;color:#1d4ed8}
+.badge-navy{background:#e2e8f0;color:var(--navy)}
+.badge-orange{background:#fff3e8;color:var(--orange)}
+.badge-teal{background:#e0f7f5;color:#00796b}
+.badge-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:var(--card-radius);border:1.5px solid var(--border);background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{background:#f8fafc;padding:12px 16px;text-align:left;font-weight:600;color:#64748b;font-size:12px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1.5px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background var(--transition)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f8fafc}
+tbody td{padding:13px 16px;color:var(--text);vertical-align:middle}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;font-size:13.5px;font-weight:600;transition:all var(--transition);cursor:pointer;border:none;font-family:var(--font-body)}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:#d96810;box-shadow:0 4px 14px rgba(244,122,32,.35)}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:#008c82;box-shadow:0 4px 14px rgba(0,169,157,.35)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:#162035}
+.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#c53030}
+.btn-success{background:var(--success);color:#fff}
+.btn-sm{padding:6px 13px;font-size:12.5px;border-radius:7px}
+.btn-xs{padding:4px 10px;font-size:11.5px;border-radius:6px}
+.btn-icon{width:34px;height:34px;padding:0;border-radius:8px;justify-content:center}
+
+/* ── FORM ── */
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.form-control{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;outline:none;transition:border var(--transition);background:#fff;color:var(--text)}
+.form-control:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,169,157,.08)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+textarea.form-control{resize:vertical;min-height:90px}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);animation:fadeIn .15s ease}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .2s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
+.modal-lg{max-width:780px}
+.modal-header{padding:22px 26px 14px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:var(--font-head);font-weight:700;font-size:17px;color:var(--navy)}
+.modal-body{padding:22px 26px}
+.modal-footer{padding:14px 26px 22px;display:flex;justify-content:flex-end;gap:10px}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px;color:#64748b;cursor:pointer;transition:all var(--transition)}
+.modal-close:hover{background:var(--border);color:var(--navy)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:22px;width:fit-content}
+.tab{padding:8px 18px;border-radius:8px;font-size:13.5px;font-weight:500;color:#64748b;cursor:pointer;transition:all var(--transition)}
+.tab.active{background:#fff;color:var(--navy);font-weight:700;box-shadow:var(--shadow)}
+
+/* ── FM STATUS BANNER ── */
+.fm-banner{border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:14px;margin-bottom:22px;font-weight:600;font-size:14px}
+.fm-on{background:#dcfce7;color:#15803d;border:1.5px solid #bbf7d0}
+.fm-off{background:#fee2e2;color:#b91c1c;border:1.5px solid #fecaca;animation:pulse 2s infinite}
+.fm-pulse{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.fm-on .fm-pulse{background:var(--success);box-shadow:0 0 0 3px rgba(34,197,94,.3)}
+.fm-off .fm-pulse{background:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.3)}
+
+/* ── PROGRESS ── */
+.progress{height:7px;background:var(--border);border-radius:999px;overflow:hidden}
+.progress-bar{height:100%;border-radius:999px;transition:width .4s ease}
+
+/* ── GRID HELPERS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.flex{display:flex}
+.flex-col{flex-direction:column}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.gap-2{gap:8px}
+.gap-3{gap:12px}
+.gap-4{gap:16px}
+.mb-1{margin-bottom:4px}
+.mb-2{margin-bottom:8px}
+.mb-3{margin-bottom:14px}
+.mb-4{margin-bottom:20px}
+.mb-5{margin-bottom:28px}
+.mt-2{margin-top:8px}
+.mt-3{margin-top:14px}
+.mt-4{margin-top:20px}
+.text-sm{font-size:12.5px}
+.text-xs{font-size:11.5px}
+.text-muted{color:#94a3b8}
+.text-navy{color:var(--navy)}
+.text-orange{color:var(--orange)}
+.text-teal{color:var(--teal)}
+.font-bold{font-weight:700}
+.font-head{font-family:var(--font-head)}
+.w-full{width:100%}
+
+/* ── CHART PLACEHOLDER ── */
+.chart-area{background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#94a3b8;font-size:13px}
+
+/* ── CALENDAR ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border-radius:10px;overflow:hidden}
+.cal-header{background:#f8fafc;padding:10px;text-align:center;font-size:11px;font-weight:700;color:#64748b;letter-spacing:.06em;text-transform:uppercase}
+.cal-cell{background:#fff;min-height:90px;padding:8px;position:relative}
+.cal-cell.today{background:#fff8f3}
+.cal-date{font-size:12px;font-weight:700;color:#64748b;margin-bottom:4px}
+.cal-event{background:var(--orange);color:#fff;font-size:10.5px;font-weight:600;border-radius:5px;padding:2px 7px;margin-bottom:2px;cursor:pointer}
+.cal-event.teal{background:var(--teal)}
+.cal-event.navy{background:var(--navy)}
+
+/* ── STATUS INDICATOR ── */
+.status-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+.status-online{background:var(--success)}
+.status-offline{background:var(--danger)}
+.status-pending{background:var(--warning)}
+.status-info{background:var(--info)}
+
+/* ── NOTIFICATION PANEL ── */
+.notif-panel{position:fixed;top:var(--header-h);right:0;width:340px;background:#fff;border-left:1.5px solid var(--border);height:calc(100vh - var(--header-h));z-index:150;box-shadow:-4px 0 24px rgba(0,0,0,.08);transform:translateX(100%);transition:transform var(--transition);overflow-y:auto}
+.notif-panel.open{transform:translateX(0)}
+.notif-header{padding:18px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.notif-item{padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--transition)}
+.notif-item:hover{background:#f8fafc}
+.notif-item.unread{background:#fff8f3}
+.notif-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+
+/* ── SEARCH BAR ── */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-bar .form-control{width:auto}
+
+/* ── DRAG DROP ── */
+.dropzone{border:2.5px dashed var(--border);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--transition);background:#fafafa}
+.dropzone:hover,.dropzone.dragging{border-color:var(--teal);background:#f0fdfc}
+
+/* ── QR CODE ── */
+.qr-box{width:140px;height:140px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:11px;color:#94a3b8;text-align:center;padding:12px}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;gap:4px;margin-top:16px;justify-content:flex-end}
+.page-btn{min-width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all var(--transition)}
+.page-btn:hover{border-color:var(--orange);color:var(--orange)}
+.page-btn.active{background:var(--orange);border-color:var(--orange);color:#fff}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:10px}
+.toast{background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 8px 28px rgba(0,0,0,.15);display:flex;align-items:center;gap:12px;font-size:13.5px;font-weight:500;border-left:4px solid var(--teal);animation:slideUp .2s ease;min-width:280px;max-width:380px}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--danger)}
+.toast.warning{border-left-color:var(--warning)}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;padding:24px}
+.login-card{background:#fff;border-radius:22px;padding:42px 44px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.35)}
+.login-logo{display:flex;align-items:center;gap:14px;margin-bottom:30px}
+.login-logo-icon{width:52px;height:52px;background:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:20px;color:#fff}
+.login-title{font-family:var(--font-head);font-weight:800;font-size:22px;color:var(--navy)}
+.login-sub{font-size:12.5px;color:#94a3b8;margin-top:2px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #main{margin-left:0}
+  .grid-2,.grid-3,.form-row{grid-template-columns:1fr}
+  #content{padding:18px 16px}
+}
+
+/* ── SECTION HEADER ── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.sec-title{font-family:var(--font-head);font-weight:800;font-size:22px;color:var(--navy)}
+.sec-sub{font-size:13px;color:#64748b;margin-top:3px}
+
+/* ── TICKET CARD ── */
+.ticket{background:#fff;border-radius:12px;border:1.5px solid var(--border);padding:18px 20px;margin-bottom:12px;transition:all var(--transition)}
+.ticket:hover{border-color:var(--teal);box-shadow:var(--shadow)}
+.ticket-id{font-size:11.5px;font-weight:700;color:var(--teal);margin-bottom:4px}
+.ticket-subject{font-size:14.5px;font-weight:700;color:var(--navy)}
+.ticket-meta{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+
+/* ── RADIO SCHEDULE ── */
+.schedule-item{background:#fff;border-radius:12px;border:1.5px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:10px;transition:all var(--transition)}
+.schedule-item:hover{border-color:var(--orange)}
+.schedule-time{font-family:var(--font-head);font-weight:700;font-size:14px;color:var(--navy);min-width:90px}
+.schedule-show{font-weight:700;font-size:14px;color:var(--text)}
+.schedule-presenter{font-size:12.5px;color:#64748b}
+
+/* ── NEWS CARD ── */
+.news-card{background:#fff;border-radius:12px;border:1.5px solid var(--border);overflow:hidden;transition:all var(--transition)}
+.news-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.news-img{height:140px;background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);display:flex;align-items:center;justify-content:center;font-size:32px}
+.news-body{padding:16px}
+.news-tag{font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.news-title{font-family:var(--font-head);font-weight:700;font-size:14.5px;color:var(--navy);line-height:1.35;margin-bottom:8px}
+.news-meta{font-size:12px;color:#94a3b8}
+
+/* ── DARK MODE ── */
+body.dark{--bg:#0f1623;--text:#e2e8f0;--border:#1e2d44;--shadow:0 2px 12px rgba(0,0,0,.3);--shadow-md:0 4px 24px rgba(0,0,0,.4)}
+body.dark .card,body.dark #topbar,body.dark .modal,body.dark table,body.dark .table-wrap,body.dark thead th,body.dark .tb-search input,body.dark .form-control,body.dark .ticket,body.dark .schedule-item,body.dark .news-card,body.dark .news-body,body.dark .kpi,body.dark .notif-panel,body.dark .page-btn,body.dark .tabs,body.dark .tab.active{background:#162032;border-color:#1e2d44;color:var(--text)}
+body.dark thead th{background:#0f1623;color:#64748b}
+body.dark tbody tr:hover{background:#1a2940}
+body.dark .form-control{background:#162032;color:#e2e8f0}
+body.dark .tb-search input{background:#162032;color:#e2e8f0}
+body.dark .sb-section,body.dark .tb-search-icon{color:rgba(255,255,255,.3)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">SP</div>
+      <div>
+        <div class="login-title">SHMS</div>
+        <div class="login-sub">Swahilipot Hub Management System</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-control" id="login-email" type="email" placeholder="admin@swahilipothub.org" value="admin@swahilipothub.org"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-control" id="login-pass" type="password" placeholder="••••••••" value="password"/>
+    </div>
+    <button class="btn btn-primary w-full" onclick="doLogin()" style="width:100%;justify-content:center;padding:12px;">
+      Sign In to SHMS
+    </button>
+    <div style="text-align:center;margin-top:16px;font-size:12.5px;color:#94a3b8">
+      Demo: admin@swahilipothub.org / password
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">SP</div>
+    <div>
+      <div class="sb-logo-text">SHMS</div>
+      <div class="sb-logo-sub">Swahilipot Hub</div>
+    </div>
+  </div>
+  <div class="sb-nav" id="sidebar-nav"></div>
+  <div class="sb-user">
+    <div class="sb-avatar" id="sb-avatar-txt">AD</div>
+    <div>
+      <div class="sb-user-name" id="sb-user-name">Admin User</div>
+      <div class="sb-user-role" id="sb-user-role">Administrator</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <button class="tb-icon-btn" id="menu-btn" onclick="toggleSidebar()" style="display:none">☰</button>
+    <div class="tb-page-title" id="topbar-title">Dashboard</div>
+    <span class="tb-breadcrumb" id="topbar-bc">/ Overview</span>
+    <div class="tb-search">
+      <span class="tb-search-icon">🔍</span>
+      <input placeholder="Search anything…" id="global-search"/>
+    </div>
+    <div class="tb-actions">
+      <button class="tb-icon-btn" onclick="toggleDark()" title="Toggle Dark Mode">🌙</button>
+      <button class="tb-icon-btn" onclick="toggleNotif()" title="Notifications">
+        🔔<span class="tb-notif-dot" id="notif-dot"></span>
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main id="content"></main>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header">
+    <span class="font-head font-bold" style="font-size:15px">Notifications</span>
+    <button class="modal-close" onclick="toggleNotif()">×</button>
+  </div>
+  <div id="notif-list"></div>
+</div>
+
+</div><!-- /#app -->
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- MODAL CONTAINER -->
+<div id="modal-container"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  SHMS – CORE STATE
+// ══════════════════════════════════════════════
+const STATE = {
+  user: null,
+  darkMode: false,
+  currentPage: 'dashboard',
+  sidebarOpen: false,
+  notifOpen: false,
+};
+
+// ── NAV CONFIG ──
+const NAV = [
+  { section: 'Overview' },
+  { id: 'dashboard', label: 'Dashboard', icon: '📊', bc: '/ Overview' },
+  { section: 'Operations' },
+  { id: 'equipment', label: 'Equipment', icon: '🔧', bc: '/ Equipment', badge: 3 },
+  { id: 'projects', label: 'Projects', icon: '📁', bc: '/ Projects' },
+  { id: 'subscriptions', label: 'Subscriptions', icon: '💿', bc: '/ Subscriptions', badge: 2 },
+  { id: 'wifi', label: 'Wi-Fi Access', icon: '📶', bc: '/ Wi-Fi Access' },
+  { section: 'Communication' },
+  { id: 'feedback', label: 'Feedback & Complaints', icon: '💬', bc: '/ Feedback', badge: 7 },
+  { id: 'filetransfer', label: 'File Transfer', icon: '📤', bc: '/ File Transfer' },
+  { section: 'Media' },
+  { id: 'fmstation', label: 'FM Station', icon: '📻', bc: '/ FM Station' },
+  { id: 'calls', label: 'Call Recordings', icon: '🎙️', bc: '/ Call Recordings' },
+  { id: 'radio', label: 'Radio Schedule', icon: '🗓️', bc: '/ Radio Schedule' },
+  { id: 'news', label: 'News CMS', icon: '📰', bc: '/ News CMS' },
+  { id: 'videography', label: 'Videography', icon: '🎬', bc: '/ Videography' },
+  { section: 'Admin' },
+  { id: 'reports', label: 'Reports', icon: '📈', bc: '/ Reports' },
+  { id: 'users', label: 'User Management', icon: '👥', bc: '/ Users' },
+  { id: 'settings', label: 'Settings', icon: '⚙️', bc: '/ Settings' },
+];
+
+// ── MOCK DATA ──
+const MOCK = {
+  equipment: [
+    { id:'E001', name:'Sony Alpha 7 IV', category:'Camera', status:'Available', location:'Studio A', lastUsed:'2025-06-01', assignedTo:'-' },
+    { id:'E002', name:'DJI Ronin 4D', category:'Stabilizer', status:'Checked Out', location:'Field', lastUsed:'2025-06-03', assignedTo:'John M.' },
+    { id:'E003', name:'Rode NT1 Mic', category:'Audio', status:'Reserved', location:'Studio B', lastUsed:'2025-05-28', assignedTo:'Grace A.' },
+    { id:'E004', name:'MacBook Pro M3', category:'Computer', status:'Available', location:'Edit Suite', lastUsed:'2025-06-02', assignedTo:'-' },
+    { id:'E005', name:'Zoom H6 Recorder', category:'Audio', status:'Under Repair', location:'Workshop', lastUsed:'2025-05-20', assignedTo:'-' },
+    { id:'E006', name:'Aputure 300d II', category:'Lighting', status:'Available', location:'Studio A', lastUsed:'2025-06-04', assignedTo:'-' },
+  ],
+  projects: [
+    { id:'P001', title:'Documentary: Coast Life', submitter:'Amina K.', type:'Video', status:'Under Review', submitted:'2025-06-01', grade:'-' },
+    { id:'P002', title:'Radio Drama Script', submitter:'Brian O.', type:'Audio', status:'Graded', submitted:'2025-05-25', grade:'A' },
+    { id:'P003', title:'Photo Essay: Mombasa Port', submitter:'Faith W.', type:'PDF', status:'Submitted', submitted:'2025-06-03', grade:'-' },
+    { id:'P004', title:'News Package – Tourism', submitter:'James L.', type:'Video', status:'Draft', submitted:'-', grade:'-' },
+    { id:'P005', title:'Website Redesign Brief', submitter:'Lena P.', type:'DOCX', status:'Rejected', submitted:'2025-05-18', grade:'-' },
+  ],
+  subscriptions: [
+    { id:'S001', software:'Adobe Creative Cloud', seats:10, used:8, expires:'2025-07-15', cost:'$599/yr', status:'Active' },
+    { id:'S002', software:'Adobe Audition', seats:5, used:5, expires:'2025-06-25', cost:'$299/yr', status:'Expiring Soon' },
+    { id:'S003', software:'Lightroom Classic', seats:8, used:4, expires:'2025-09-01', cost:'$199/yr', status:'Active' },
+    { id:'S004', software:'Premiere Pro', seats:6, used:6, expires:'2025-06-30', cost:'$399/yr', status:'Expiring Soon' },
+    { id:'S005', software:'DaVinci Resolve Studio', seats:3, used:2, expires:'2026-01-15', cost:'$899 one-time', status:'Active' },
+  ],
+  wifi: [
+    { id:'W001', device:'MacBook Pro', user:'Amina K.', mac:'A1:B2:C3:D4:E5', type:'Staff', granted:'2025-06-01', expires:'2025-12-01', status:'Active' },
+    { id:'W002', device:'iPhone 15', user:'Brian O.', mac:'F6:G7:H8:I9:J0', type:'Intern', granted:'2025-06-03', expires:'2025-08-03', status:'Active' },
+    { id:'W003', device:'Visitor Tablet', user:'Guest #14', mac:'K1:L2:M3:N4:O5', type:'Guest', granted:'2025-06-05', expires:'2025-06-05', status:'Expiring' },
+    { id:'W004', device:'Dell Laptop', user:'John M.', mac:'P6:Q7:R8:S9:T0', type:'Staff', granted:'2025-05-01', expires:'2025-11-01', status:'Active' },
+  ],
+  tickets: [
+    { id:'TK-001', subject:'AC not working in Studio B', category:'Facilities', priority:'High', status:'In Progress', reporter:'Faith W.', assigned:'Maintenance', created:'2025-06-02' },
+    { id:'TK-002', subject:'Premiere Pro crashing on export', category:'IT', priority:'Medium', status:'Open', reporter:'James L.', assigned:'Unassigned', created:'2025-06-04' },
+    { id:'TK-003', subject:'Equipment booking system UI bug', category:'IT', priority:'Low', status:'Resolved', reporter:'Grace A.', assigned:'Dev Team', created:'2025-05-30' },
+    { id:'TK-004', subject:'Request: New microphone for Studio C', category:'Equipment', priority:'Medium', status:'Open', reporter:'Brian O.', assigned:'Unassigned', created:'2025-06-05' },
+    { id:'TK-005', subject:'Wi-Fi slow in co-working area', category:'Network', priority:'High', status:'In Progress', reporter:'Lena P.', assigned:'IT Dept', created:'2025-06-03' },
+    { id:'TK-006', subject:'Billing discrepancy on subscription', category:'Admin', priority:'Low', status:'Closed', reporter:'Amina K.', assigned:'Finance', created:'2025-05-20' },
+    { id:'TK-007', subject:'Camera tripod damaged', category:'Equipment', priority:'Medium', status:'Open', reporter:'John M.', assigned:'Unassigned', created:'2025-06-05' },
+  ],
+  files: [
+    { id:'F001', name:'Documentary_CoastLife_Final.mp4', size:'2.4 GB', uploaded:'2025-06-04', expires:'2025-06-05', downloads:3, uploader:'Amina K.', status:'Active' },
+    { id:'F002', name:'Brand_Guidelines_2025.pdf', size:'45 MB', uploaded:'2025-06-03', expires:'2025-07-03', downloads:12, uploader:'Admin', status:'Active' },
+    { id:'F003', name:'RadioDrama_Episode5.zip', size:'890 MB', uploaded:'2025-06-01', expires:'2025-06-08', downloads:7, uploader:'Brian O.', status:'Active' },
+    { id:'F004', name:'OldArchive_2024.zip', size:'12 GB', uploaded:'2025-05-01', expires:'2025-05-02', downloads:1, uploader:'Grace A.', status:'Expired' },
+  ],
+  fmOutages: [
+    { id:'OUT-01', date:'2025-06-03', start:'14:32', end:'15:10', duration:'38 min', reason:'Power Outage', reporter:'DJ Kimani' },
+    { id:'OUT-02', date:'2025-05-28', start:'09:14', end:'09:22', duration:'8 min', reason:'Technical Fault', reporter:'Auto-detect' },
+    { id:'OUT-03', date:'2025-05-15', start:'20:05', end:'20:47', duration:'42 min', reason:'Transmitter Failure', reporter:'Ops Team' },
+  ],
+  calls: [
+    { id:'C001', caller:'0712 345 678', duration:'4:32', operator:'Amina K.', date:'2025-06-05', time:'09:15', topic:'General Inquiry' },
+    { id:'C002', caller:'0733 456 789', duration:'2:17', operator:'Brian O.', date:'2025-06-05', time:'10:22', topic:'Equipment Booking' },
+    { id:'C003', caller:'0756 789 012', duration:'8:41', operator:'Grace A.', date:'2025-06-04', time:'14:05', topic:'Subscription Issue' },
+    { id:'C004', caller:'0798 123 456', duration:'1:05', operator:'James L.', date:'2025-06-04', time:'16:30', topic:'Wi-Fi Access' },
+    { id:'C005', caller:'0711 234 567', duration:'5:55', operator:'Amina K.', date:'2025-06-03', time:'11:00', topic:'News Submission' },
+  ],
+  radioShows: [
+    { id:'RS001', show:'Morning Drive', presenter:'DJ Kimani', day:'Mon-Fri', time:'06:00-09:00', genre:'Breakfast Show', status:'Active' },
+    { id:'RS002', show:'Tech Talk Mombasa', presenter:'Sarah Tech', day:'Mon', time:'12:00-13:00', genre:'Technology', status:'Active' },
+    { id:'RS003', show:'Muziki wa Pwani', presenter:'DJ Bahari', day:'Fri', time:'18:00-20:00', genre:'Entertainment', status:'Active' },
+    { id:'RS004', show:'Business Hour', presenter:'Mr. Patel', day:'Wed', time:'15:00-16:00', genre:'Finance', status:'Active' },
+    { id:'RS005', show:'Youth Voices', presenter:'Zara M.', day:'Sat', time:'10:00-12:00', genre:'Youth', status:'On Leave' },
+  ],
+  news: [
+    { id:'N001', title:'Swahilipot Hub Launches New Media Training Program', category:'Announcements', author:'Editorial', status:'Published', date:'2025-06-04', views:342 },
+    { id:'N002', title:'Coast FM Goes Digital: New Streaming Platform', category:'Technology', author:'James L.', status:'Draft', date:'2025-06-05', views:0 },
+    { id:'N003', title:'Youth Filmmakers Showcase at SHMS Annual Event', category:'Events', author:'Amina K.', status:'Review', date:'2025-06-03', views:0 },
+    { id:'N004', title:'Equipment Grant Expands Creative Capacity', category:'Operations', author:'Admin', status:'Approved', date:'2025-06-02', views:0 },
+    { id:'N005', title:'Interview: Women in Media at the Coast', category:'Features', author:'Grace A.', status:'Published', date:'2025-05-30', views:891 },
+  ],
+  shoots: [
+    { id:'SH001', title:'Brand Campaign – Pwani Tourism', client:'Tourism Board', date:'2025-06-10', status:'Confirmed', crew:'3', equipment:'Camera, Lights, Drone' },
+    { id:'SH002', title:'Staff Headshots', client:'Internal HR', date:'2025-06-07', status:'Pending', crew:'1', equipment:'Camera, Backdrop' },
+    { id:'SH003', title:'Graduation Ceremony', client:'Skills Centre', date:'2025-06-20', status:'Confirmed', crew:'4', equipment:'3x Cameras, Live Stream' },
+    { id:'SH004', title:'Product Launch Video', client:'Bora Ltd', date:'2025-06-15', status:'Review', crew:'2', equipment:'Camera, Ronin, Lights' },
+  ],
+  users: [
+    { id:'U001', name:'Admin User', email:'admin@shms.org', role:'Admin', status:'Active', lastLogin:'2025-06-05', dept:'Administration' },
+    { id:'U002', name:'Amina Khadija', email:'amina@shms.org', role:'Staff', status:'Active', lastLogin:'2025-06-05', dept:'Media Production' },
+    { id:'U003', name:'Brian Omondi', email:'brian@shms.org', role:'Attachee', status:'Active', lastLogin:'2025-06-04', dept:'Radio' },
+    { id:'U004', name:'Grace Achieng', email:'grace@shms.org', role:'Supervisor', status:'Active', lastLogin:'2025-06-03', dept:'Training' },
+    { id:'U005', name:'James Lewa', email:'james@shms.org', role:'Staff', status:'Active', lastLogin:'2025-06-05', dept:'News' },
+    { id:'U006', name:'Lena Patel', email:'lena@shms.org', role:'Attachee', status:'Inactive', lastLogin:'2025-05-25', dept:'Design' },
+  ],
+  notifications: [
+    { id:1, type:'warning', icon:'⚠️', title:'Adobe Audition expires in 20 days', time:'Just now', unread:true },
+    { id:2, type:'danger', icon:'🔴', title:'FM Station offline detected at 14:32', time:'2h ago', unread:true },
+    { id:3, type:'info', icon:'💬', title:'7 open support tickets require attention', time:'3h ago', unread:true },
+    { id:4, type:'success', icon:'✅', title:'Equipment E002 returned by John M.', time:'5h ago', unread:false },
+    { id:5, type:'info', icon:'📁', title:'New project submission: Photo Essay', time:'1d ago', unread:false },
+    { id:6, type:'warning', icon:'📶', title:'3 Wi-Fi access requests pending', time:'1d ago', unread:false },
+  ],
+};
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showToast('Please enter credentials','error'); return; }
+  STATE.user = { name: 'Admin User', role: 'Administrator', initials: 'AD', email };
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('sb-avatar-txt').textContent = 'AD';
+  document.getElementById('sb-user-name').textContent = 'Admin User';
+  document.getElementById('sb-user-role').textContent = 'Administrator';
+  initSidebar();
+  navigate('dashboard');
+  showToast('Welcome back, Admin!','success');
+}
+
+function logout() {
+  STATE.user = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  showToast('Signed out successfully');
+}
+
+// ══════════════════════════════════════════════
+//  SIDEBAR
+// ══════════════════════════════════════════════
+function initSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = NAV.map(item => {
+    if (item.section) return `<div class="sb-section">${item.section}</div>`;
+    const badge = item.badge ? `<span class="sb-badge">${item.badge}</span>` : '';
+    return `<div class="sb-item" id="nav-${item.id}" onclick="navigate('${item.id}')">
+      <span class="icon">${item.icon}</span>
+      <span>${item.label}</span>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+function navigate(page) {
+  STATE.currentPage = page;
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('nav-' + page);
+  if (el) el.classList.add('active');
+  const navItem = NAV.find(n => n.id === page);
+  document.getElementById('topbar-title').textContent = navItem?.label || 'Dashboard';
+  document.getElementById('topbar-bc').textContent = navItem?.bc || '/';
+  // Close sidebar on mobile
+  if (window.innerWidth < 900) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+  renderPage(page);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════
+//  DARK MODE
+// ══════════════════════════════════════════════
+function toggleDark() {
+  STATE.darkMode = !STATE.darkMode;
+  document.body.classList.toggle('dark', STATE.darkMode);
+  showToast(STATE.darkMode ? 'Dark mode on' : 'Light mode on');
+}
+
+// ══════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════
+function toggleNotif() {
+  STATE.notifOpen = !STATE.notifOpen;
+  document.getElementById('notif-panel').classList.toggle('open', STATE.notifOpen);
+  if (STATE.notifOpen) renderNotifications();
+}
+
+function renderNotifications() {
+  const list = document.getElementById('notif-list');
+  const typeColors = { warning:'#fff3e8', danger:'#fee2e2', info:'#dbeafe', success:'#dcfce7' };
+  list.innerHTML = MOCK.notifications.map(n => `
+    <div class="notif-item ${n.unread?'unread':''}">
+      <div class="flex items-center gap-3">
+        <div class="notif-icon" style="background:${typeColors[n.type]||'#f1f5f9'}">${n.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--navy)">${n.title}</div>
+          <div class="text-xs text-muted mt-1">${n.time}</div>
+        </div>
+        ${n.unread ? '<div class="status-dot status-online"></div>' : ''}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('notif-dot').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function showToast(msg, type='info') {
+  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  const tc = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+function openModal(html) {
+  const mc = document.getElementById('modal-container');
+  mc.innerHTML = `<div class="modal-overlay" onclick="closeModal(event)">${html}</div>`;
+}
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modal-container').innerHTML = '';
+}
+function closeModalForce() {
+  document.getElementById('modal-container').innerHTML = '';
+}
+
+// ══════════════════════════════════════════════
+//  STATUS BADGE HELPER
+// ══════════════════════════════════════════════
+function statusBadge(status) {
+  const map = {
+    'Available':'badge-success','Active':'badge-success','Published':'badge-success','ON AIR':'badge-success','Confirmed':'badge-success','Resolved':'badge-success','Graded':'badge-success',
+    'Checked Out':'badge-info','In Progress':'badge-info','Approved':'badge-info','Active':'badge-success',
+    'Reserved':'badge-orange','Expiring Soon':'badge-warning','Expiring':'badge-warning','Pending':'badge-warning','Review':'badge-warning','Draft':'badge-navy','On Leave':'badge-navy','Submitted':'badge-info',
+    'Under Review':'badge-info','Under Repair':'badge-warning','Open':'badge-orange',
+    'Retired':'badge-navy','Expired':'badge-navy','Inactive':'badge-navy','Closed':'badge-navy','Rejected':'badge-danger','OFF AIR':'badge-danger',
+  };
+  const cls = map[status] || 'badge-navy';
+  return `<span class="badge ${cls}">${status}</span>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard() {
+  return `
+  <!-- FM Banner -->
+  <div class="fm-banner fm-on mb-4">
+    <div class="fm-pulse"></div>
+    <span>🎙️ FM Station Status:</span>
+    <strong>ON AIR</strong>
+    <span class="text-sm" style="margin-left:auto;font-weight:400">Last checked: 2 mins ago · 91.5 MHz</span>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    ${kpi('📁','Active Projects','24','↑ 4 this week','up','var(--orange)')}
+    ${kpi('🔧','Equipment on Loan','8','3 overdue','down','var(--teal)')}
+    ${kpi('💬','Open Tickets','7','2 critical','down','var(--danger)')}
+    ${kpi('💿','Expiring Licenses','2','Within 30 days','down','var(--warning)')}
+    ${kpi('📰','News Published','18','5 this week','up','var(--info)')}
+    ${kpi('🎬','Shoots Booked','4','2 confirmed','up','var(--success)')}
+    ${kpi('📶','Active Wi-Fi','67','3 requests pending','up','var(--navy)')}
+    ${kpi('🎙️','Calls Today','23','Avg 3m 42s','up','var(--teal)')}
+  </div>
+
+  <div class="grid-2">
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <div class="card-title">Recent Activity</div>
+        <button class="btn btn-outline btn-xs">View All</button>
+      </div>
+      ${activityItem('📁','Project submitted: Documentary Coast Life','2 min ago','Amina K.')}
+      ${activityItem('🔧','Equipment E003 reserved by Grace A.','15 min ago','System')}
+      ${activityItem('💬','New ticket: Premier Pro crashing','1h ago','James L.')}
+      ${activityItem('📰','News article published: SHMS Media Training','2h ago','Editorial')}
+      ${activityItem('📻','FM outage resolved – back on air','3h ago','Ops Team')}
+      ${activityItem('💿','Adobe Audition expiry alert sent','5h ago','System')}
+    </div>
+
+    <!-- Alerts & Action Items -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <div class="card-title">Action Required</div>
+        <span class="badge badge-danger">5 items</span>
+      </div>
+      ${alertItem('danger','💿','Adobe Audition expires in 20 days','Renew subscription','subscriptions')}
+      ${alertItem('danger','💬','7 open support tickets','Review tickets','feedback')}
+      ${alertItem('warning','🔧','Equipment E005 under repair >2 weeks','Check status','equipment')}
+      ${alertItem('warning','📶','3 Wi-Fi access requests pending approval','Review requests','wifi')}
+      ${alertItem('info','📁','2 projects awaiting lecturer review','Review now','projects')}
+    </div>
+  </div>
+
+  <div class="grid-2 mt-4">
+    <!-- Equipment Summary -->
+    <div class="card">
+      <div class="card-title mb-2">Equipment Status</div>
+      <div class="card-sub mb-4">Live inventory overview</div>
+      ${equipStat('Available','22','var(--success)',22/34*100)}
+      ${equipStat('Checked Out','8','var(--info)',8/34*100)}
+      ${equipStat('Reserved','2','var(--warning)',2/34*100)}
+      ${equipStat('Under Repair','2','var(--danger)',2/34*100)}
+    </div>
+
+    <!-- Ticket Summary -->
+    <div class="card">
+      <div class="card-title mb-2">Support Tickets</div>
+      <div class="card-sub mb-4">Current ticket pipeline</div>
+      ${equipStat('Open','3','var(--orange)',3/7*100)}
+      ${equipStat('In Progress','2','var(--info)',2/7*100)}
+      ${equipStat('Resolved','1','var(--success)',1/7*100)}
+      ${equipStat('Closed','1','#94a3b8',1/7*100)}
+    </div>
+  </div>
+
+  <!-- Projects & News summary -->
+  <div class="grid-2 mt-4">
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <div class="card-title">Recent Projects</div>
+        <button class="btn btn-teal btn-xs" onclick="navigate('projects')">View All</button>
+      </div>
+      <table style="width:100%;font-size:13px">
+        <thead><tr><th style="padding:6px 0;color:#94a3b8;font-size:11px">TITLE</th><th>SUBMITTER</th><th>STATUS</th></tr></thead>
+        <tbody>
+          ${MOCK.projects.slice(0,4).map(p=>`<tr>
+            <td style="padding:8px 0;font-weight:600">${p.title}</td>
+            <td style="color:#64748b">${p.submitter}</td>
+            <td>${statusBadge(p.status)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <div class="card-title">Upcoming Shoots</div>
+        <button class="btn btn-teal btn-xs" onclick="navigate('videography')">View All</button>
+      </div>
+      ${MOCK.shoots.map(s=>`
+        <div class="flex items-center gap-3 mb-3">
+          <div style="width:40px;height:40px;border-radius:10px;background:#fff3e8;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🎬</div>
+          <div style="flex:1">
+            <div style="font-size:13.5px;font-weight:700">${s.title}</div>
+            <div class="text-xs text-muted">${s.date} · ${s.crew} crew</div>
+          </div>
+          ${statusBadge(s.status)}
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function kpi(icon, label, value, change, dir, color) {
+  return `<div class="kpi">
+    <div class="kpi-accent" style="background:${color}"></div>
+    <div class="kpi-icon" style="background:${color}20;color:${color}">${icon}</div>
+    <div class="kpi-val">${value}</div>
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-change ${dir}">${dir==='up'?'↑':'↓'} ${change}</div>
+  </div>`;
+}
+
+function activityItem(icon, text, time, user) {
+  return `<div class="flex items-center gap-3 mb-3">
+    <div style="width:34px;height:34px;border-radius:9px;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${icon}</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${text}</div><div class="text-xs text-muted">${user} · ${time}</div></div>
+  </div>`;
+}
+
+function alertItem(type, icon, text, action, page) {
+  const colors = { danger:'#fee2e2', warning:'#fef9c3', info:'#dbeafe' };
+  return `<div style="background:${colors[type]};border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+    <span>${icon}</span>
+    <span style="flex:1;font-size:13px;font-weight:500">${text}</span>
+    <button class="btn btn-xs btn-outline" onclick="navigate('${page}')" style="white-space:nowrap">${action}</button>
+  </div>`;
+}
+
+function equipStat(label, count, color, pct) {
+  return `<div class="flex items-center gap-3 mb-3">
+    <span style="min-width:110px;font-size:13px;font-weight:500">${label}</span>
+    <div class="progress" style="flex:1"><div class="progress-bar" style="width:${pct}%;background:${color}"></div></div>
+    <span style="min-width:30px;text-align:right;font-size:13px;font-weight:700;color:${color}">${count}</span>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: EQUIPMENT
+// ══════════════════════════════════════════════
+function renderEquipment() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Equipment Management</div><div class="sec-sub">Track, book and manage all equipment inventory</div></div>
+    <button class="btn btn-primary" onclick="openAddEquipModal()">+ Add Equipment</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+    ${kpi('📦','Total Items','34','All inventory','up','var(--navy)')}
+    ${kpi('✅','Available','22','Ready for use','up','var(--success)')}
+    ${kpi('🔄','Checked Out','8','In field','up','var(--info)')}
+    ${kpi('🔒','Reserved','2','Pre-booked','up','var(--warning)')}
+    ${kpi('🔨','Under Repair','2','Service queue','down','var(--danger)')}
+  </div>
+  <div class="filter-bar">
+    <input class="form-control" placeholder="🔍 Search equipment…" style="width:240px"/>
+    <select class="form-control"><option>All Categories</option><option>Camera</option><option>Audio</option><option>Lighting</option><option>Computer</option><option>Stabilizer</option></select>
+    <select class="form-control"><option>All Status</option><option>Available</option><option>Checked Out</option><option>Reserved</option><option>Under Repair</option></select>
+    <button class="btn btn-outline btn-sm">Export CSV</button>
+    <button class="btn btn-outline btn-sm">Export PDF</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Status</th><th>Location</th><th>Last Used</th><th>Assigned To</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${MOCK.equipment.map(e=>`<tr>
+          <td><code style="font-size:12px;background:var(--bg);padding:2px 7px;border-radius:5px">${e.id}</code></td>
+          <td><strong>${e.name}</strong></td>
+          <td><span class="badge badge-navy">${e.category}</span></td>
+          <td>${statusBadge(e.status)}</td>
+          <td>${e.location}</td>
+          <td class="text-sm text-muted">${e.lastUsed}</td>
+          <td>${e.assignedTo}</td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-xs btn-teal" onclick="showToast('Booking modal coming…','info')">Book</button>
+              <button class="btn btn-xs btn-outline" onclick="showToast('Edit mode','info')">Edit</button>
+              <button class="btn btn-xs btn-outline" onclick="showToast('Damage report filed','warning')">⚠️</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  ${pagination(1,3)}`;
+}
+
+function openAddEquipModal() {
+  openModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">Add Equipment</span><button class="modal-close" onclick="closeModalForce()">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Equipment Name</label><input class="form-control" placeholder="e.g. Sony Alpha 7 IV"/></div>
+        <div class="form-group"><label class="form-label">Category</label><select class="form-control"><option>Camera</option><option>Audio</option><option>Lighting</option><option>Computer</option><option>Stabilizer</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Serial Number</label><input class="form-control" placeholder="SN-XXXXXXXX"/></div>
+        <div class="form-group"><label class="form-label">Location</label><input class="form-control" placeholder="Studio A"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" placeholder="Condition, accessories…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModalForce()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModalForce();showToast('Equipment added!','success')">Add Equipment</button>
+    </div>
+  </div>`);
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: PROJECTS
+// ══════════════════════════════════════════════
+function renderProjects() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Project Submissions</div><div class="sec-sub">Upload, review and grade project submissions</div></div>
+    <button class="btn btn-primary" onclick="showToast('Upload project modal','info')">+ Submit Project</button>
+  </div>
+  <div class="tabs" style="margin-bottom:20px">
+    <div class="tab active">All Projects</div>
+    <div class="tab">Pending Review</div>
+    <div class="tab">Graded</div>
+    <div class="tab">Rejected</div>
+  </div>
+  <div class="filter-bar">
+    <input class="form-control" placeholder="🔍 Search projects…" style="width:240px"/>
+    <select class="form-control"><option>All Types</option><option>Video</option><option>Audio</option><option>PDF</option><option>DOCX</option></select>
+    <select class="form-control"><option>All Status</option><option>Draft</option><option>Submitted</option><option>Under Review</option><option>Graded</option><option>Rejected</option></select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Project Title</th><th>Submitter</th><th>Type</th><th>Status</th><th>Submitted</th><th>Grade</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${MOCK.projects.map(p=>`<tr>
+          <td><code style="font-size:12px;background:var(--bg);padding:2px 7px;border-radius:5px">${p.id}</code></td>
+          <td><strong>${p.title}</strong></td>
+          <td>${p.submitter}</td>
+          <td><span class="badge badge-info">${p.type}</span></td>
+          <td>${statusBadge(p.status)}</td>
+          <td class="text-sm text-muted">${p.submitted}</td>
+          <td>${p.grade !== '-' ? `<span class="badge badge-success">${p.grade}</span>` : '-'}</td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-xs btn-teal" onclick="showToast('Viewing project…','info')">View</button>
+              <button class="btn btn-xs btn-outline" onclick="showToast('Review modal','info')">Review</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  ${pagination(1,2)}`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: SUBSCRIPTIONS
+// ══════════════════════════════════════════════
+function renderSubscriptions() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Software Subscriptions</div><div class="sec-sub">Manage software licenses, seats and renewal alerts</div></div>
+    <button class="btn btn-primary" onclick="showToast('Add subscription modal','info')">+ Add Subscription</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi('💿','Total Subscriptions','5','All licenses','up','var(--navy)')}
+    ${kpi('✅','Active','3','Healthy','up','var(--success)')}
+    ${kpi('⚠️','Expiring Soon','2','Within 30 days','down','var(--warning)')}
+    ${kpi('🪑','Total Seats','32','Across all software','up','var(--teal)')}
+  </div>
+  <div class="grid-2">
+    ${MOCK.subscriptions.map(s=>`
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <div style="width:44px;height:44px;border-radius:12px;background:${s.status==='Expiring Soon'?'#fee2e2':'#e0f7f5'};display:flex;align-items:center;justify-content:center;font-size:22px">💿</div>
+          <div>
+            <div style="font-weight:700;font-size:14.5px">${s.software}</div>
+            <div class="text-xs text-muted">${s.cost}</div>
+          </div>
+        </div>
+        ${statusBadge(s.status)}
+      </div>
+      <div class="flex gap-4 mb-3">
+        <div><div class="text-xs text-muted">Seats Used</div><div style="font-family:var(--font-head);font-weight:700;font-size:20px">${s.used}/${s.seats}</div></div>
+        <div><div class="text-xs text-muted">Expires</div><div style="font-weight:600;font-size:13.5px;color:${s.status==='Expiring Soon'?'var(--danger)':'var(--navy)'}">${s.expires}</div></div>
+      </div>
+      <div class="progress mb-3"><div class="progress-bar" style="width:${s.used/s.seats*100}%;background:${s.used===s.seats?'var(--danger)':'var(--teal)'}"></div></div>
+      <div class="flex gap-2">
+        <button class="btn btn-xs btn-teal">Manage Seats</button>
+        <button class="btn btn-xs btn-outline" onclick="showToast('Renewal initiated','success')">Renew</button>
+        <button class="btn btn-xs btn-outline" onclick="showToast('Usage report','info')">Report</button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: WIFI
+// ══════════════════════════════════════════════
+function renderWifi() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Wi-Fi Access Management</div><div class="sec-sub">Device registration, access grants and network monitoring</div></div>
+    <button class="btn btn-primary" onclick="showToast('New access request','info')">+ Grant Access</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi('📶','Active Devices','67','Connected now','up','var(--teal)')}
+    ${kpi('⏰','Expiring Soon','3','Within 7 days','down','var(--warning)')}
+    ${kpi('⏳','Pending Requests','3','Awaiting approval','down','var(--orange)')}
+    ${kpi('🚫','Revoked Today','1','Access removed','up','var(--danger)')}
+  </div>
+  <div class="filter-bar">
+    <input class="form-control" placeholder="🔍 Search devices…" style="width:240px"/>
+    <select class="form-control"><option>All Types</option><option>Staff</option><option>Intern</option><option>Guest</option></select>
+    <select class="form-control"><option>All Status</option><option>Active</option><option>Expiring</option><option>Revoked</option></select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Device</th><th>User</th><th>MAC Address</th><th>Type</th><th>Granted</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${MOCK.wifi.map(w=>`<tr>
+          <td><code style="font-size:12px;background:var(--bg);padding:2px 7px;border-radius:5px">${w.id}</code></td>
+          <td><strong>${w.device}</strong></td>
+          <td>${w.user}</td>
+          <td><code style="font-size:11.5px">${w.mac}</code></td>
+          <td><span class="badge badge-navy">${w.type}</span></td>
+          <td class="text-sm text-muted">${w.granted}</td>
+          <td class="text-sm ${w.status==='Expiring'?'text-orange':''}">${w.expires}</td>
+          <td>${statusBadge(w.status)}</td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-xs btn-outline" onclick="showToast('Access extended','success')">Extend</button>
+              <button class="btn btn-xs btn-danger" onclick="showToast('Access revoked','warning')">Revoke</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: FEEDBACK
+// ══════════════════════════════════════════════
+function renderFeedback() {
+  const stats = { open:3, inprogress:2, resolved:1, closed:1 };
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Feedback & Complaints</div><div class="sec-sub">Support ticket management and resolution tracking</div></div>
+    <button class="btn btn-primary" onclick="openNewTicketModal()">+ New Ticket</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi('📨','Total Tickets','7','All time','up','var(--navy)')}
+    ${kpi('🔴','Open','3','Need attention','down','var(--danger)')}
+    ${kpi('🔵','In Progress','2','Being handled','up','var(--info)')}
+    ${kpi('✅','Resolved','1','This week','up','var(--success)')}
+  </div>
+  <div class="filter-bar">
+    <input class="form-control" placeholder="🔍 Search tickets…" style="width:240px"/>
+    <select class="form-control"><option>All Categories</option><option>IT</option><option>Facilities</option><option>Equipment</option><option>Network</option></select>
+    <select class="form-control"><option>All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+  </div>
+  ${MOCK.tickets.map(t=>`
+  <div class="ticket">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="ticket-id">${t.id}</div>
+        <div class="ticket-subject">${t.subject}</div>
+        <div class="ticket-meta">
+          <span class="badge badge-navy">${t.category}</span>
+          ${t.priority==='High'?'<span class="badge badge-danger">High Priority</span>':t.priority==='Medium'?'<span class="badge badge-warning">Medium</span>':'<span class="badge badge-navy">Low</span>'}
+          ${statusBadge(t.status)}
+          <span class="text-xs text-muted">👤 ${t.reporter} · 📅 ${t.created}</span>
+          <span class="text-xs text-muted">Assigned: <strong>${t.assigned}</strong></span>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-xs btn-teal" onclick="showToast('Ticket details','info')">View</button>
+        <button class="btn btn-xs btn-outline" onclick="showToast('Assigned to staff','success')">Assign</button>
+        <button class="btn btn-xs btn-success" onclick="showToast('Marked resolved','success')">Resolve</button>
+      </div>
+    </div>
+  </div>`).join('')}`;
+}
+
+function openNewTicketModal() {
+  openModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">New Support Ticket</span><button class="modal-close" onclick="closeModalForce()">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-control" placeholder="Brief description of issue"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Category</label><select class="form-control"><option>IT</option><option>Facilities</option><option>Equipment</option><option>Network</option><option>Admin</option></select></div>
+        <div class="form-group"><label class="form-label">Priority</label><select class="form-control"><option>Low</option><option>Medium</option><option>High</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" rows="4" placeholder="Detailed description…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModalForce()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModalForce();showToast('Ticket submitted!','success')">Submit Ticket</button>
+    </div>
+  </div>`);
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: FILE TRANSFER
+// ══════════════════════════════════════════════
+function renderFileTransfer() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">File Transfer System</div><div class="sec-sub">Upload, share and track large file transfers</div></div>
+  </div>
+  <div class="grid-2 mb-5">
+    <div class="card">
+      <div class="card-title mb-1">Upload File</div>
+      <div class="card-sub mb-4">Drag & drop or click to browse. Max 10GB per file.</div>
+      <div class="dropzone" onclick="showToast('File browser opened','info')" ondragover="this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')">
+        <div style="font-size:36px;margin-bottom:12px">📤</div>
+        <div style="font-weight:700;color:var(--navy);margin-bottom:6px">Drop files here or click to upload</div>
+        <div class="text-sm text-muted">Supports: MP4, PDF, ZIP, DOCX, MP3, and more</div>
+        <button class="btn btn-primary mt-3" style="pointer-events:none">Browse Files</button>
+      </div>
+      <div class="form-row mt-3">
+        <div class="form-group">
+          <label class="form-label">Link Expiry</label>
+          <select class="form-control"><option>24 hours</option><option>48 hours</option><option>7 days</option><option>First download only</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password Protect</label>
+          <input class="form-control" type="password" placeholder="Optional password"/>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div class="card-title mb-1 text-center">Share via QR Code</div>
+      <div class="card-sub mb-4 text-center">Scan to download on any device</div>
+      <div class="qr-box">
+        <div>
+          <div style="font-size:32px">▪▫▪▫▪</div>
+          <div style="font-size:9px;margin-top:6px;color:#94a3b8">QR code appears<br/>after upload</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;text-align:center;font-size:12.5px;color:#94a3b8">
+        Or share link directly:
+      </div>
+      <div class="flex gap-2 mt-2 w-full">
+        <input class="form-control" value="https://shms.swahilipot.org/f/…" readonly style="font-size:12px"/>
+        <button class="btn btn-teal btn-sm" onclick="showToast('Link copied!','success')">Copy</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <div class="card-title">Active Transfers</div>
+      <input class="form-control" placeholder="Search files…" style="width:200px"/>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>File Name</th><th>Size</th><th>Uploaded</th><th>Expires</th><th>Downloads</th><th>Uploader</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${MOCK.files.map(f=>`<tr>
+            <td><strong>${f.name}</strong></td>
+            <td class="text-sm">${f.size}</td>
+            <td class="text-sm text-muted">${f.uploaded}</td>
+            <td class="text-sm ${f.status==='Expired'?'text-muted':''}">${f.expires}</td>
+            <td>${f.downloads}</td>
+            <td>${f.uploader}</td>
+            <td>${statusBadge(f.status)}</td>
+            <td>
+              <div class="flex gap-2">
+                ${f.status!=='Expired'?`<button class="btn btn-xs btn-teal" onclick="showToast('Link copied!','success')">Share</button>`:''}
+                <button class="btn btn-xs btn-outline" onclick="showToast('File deleted','warning')">Delete</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: FM STATION
+// ══════════════════════════════════════════════
+function renderFMStation() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">FM Station Monitoring</div><div class="sec-sub">Real-time status tracking and outage management</div></div>
+    <div class="flex gap-2">
+      <button class="btn btn-danger" onclick="showToast('FM Outage reported!','error')">🔴 Report Outage</button>
+      <button class="btn btn-success" onclick="showToast('FM restored!','success')">🟢 Report Restored</button>
+    </div>
+  </div>
+  <div class="fm-banner fm-on mb-5">
+    <div class="fm-pulse"></div>
+    <div>
+      <div style="font-size:16px;font-weight:700">ON AIR — 91.5 MHz</div>
+      <div class="text-sm" style="font-weight:400;opacity:.8">Last checked: 2 minutes ago · Auto-monitor active (every 5 min)</div>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <div class="text-sm font-bold">Uptime Today</div>
+      <div style="font-family:var(--font-head);font-weight:800;font-size:22px">99.2%</div>
+    </div>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi('✅','Uptime This Month','99.2%','Excellent','up','var(--success)')}
+    ${kpi('🔴','Outages This Month','3','Total incidents','down','var(--danger)')}
+    ${kpi('⏱️','Avg Outage Duration','29 min','Per incident','down','var(--warning)')}
+    ${kpi('📅','Last Outage','2 days ago','June 3, 2025','up','var(--info)')}
+  </div>
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <div class="card-title">Outage History</div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm">Export CSV</button>
+        <button class="btn btn-outline btn-sm">Export PDF</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Date</th><th>Start Time</th><th>End Time</th><th>Duration</th><th>Reason</th><th>Reported By</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${MOCK.fmOutages.map(o=>`<tr>
+            <td><code style="font-size:12px;background:var(--bg);padding:2px 7px;border-radius:5px">${o.id}</code></td>
+            <td>${o.date}</td>
+            <td>${o.start}</td>
+            <td>${o.end}</td>
+            <td><span class="badge badge-warning">${o.duration}</span></td>
+            <td>${o.reason}</td>
+            <td>${o.reporter}</td>
+            <td><button class="btn btn-xs btn-outline" onclick="showToast('Viewing outage report','info')">Details</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: CALL RECORDINGS
+// ══════════════════════════════════════════════
+function renderCalls() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Call Recording Management</div><div class="sec-sub">Audio recording archive with playback and analytics</div></div>
+    <span class="badge badge-danger" style="font-size:12px;padding:6px 12px">🔒 Restricted Access</span>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi('📞','Calls Today','23','Active sessions','up','var(--teal)')}
+    ${kpi('⏱️','Avg Duration','3m 42s','All calls','up','var(--success)')}
+    ${kpi('📦','Total Recordings','1,247','Archive','up','var(--navy)')}
+    ${kpi('💾','Storage Used','48.3 GB','Of 100 GB','up','var(--warning)')}
+  </div>
+  <div class="filter-bar">
+    <input class="form-control" placeholder="🔍 Search by caller…" style="width:220px"/>
+    <select class="form-control"><option>All Operators</option><option>Amina K.</option><option>Brian O.</option><option>Grace A.</option><option>James L.</option></select>
+    <input class="form-control" type="date" value="2025-06-05"/>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Caller</th><th>Duration</th><th>Operator</th><th>Date</th><th>Time</th><th>Topic</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${MOCK.calls.map(c=>`<tr>
+          <td><code style="font-size:12px;background:var(--bg);padding:2px 7px;border-radius:5px">${c.id}</code></td>
+          <td>${c.caller}</td>
+          <td><span class="badge badge-teal">${c.duration}</span></td>
+          <td>${c.operator}</td>
+          <td class="text-sm text-muted">${c.date}</td>
+          <td class="text-sm text-muted">${c.time}</td>
+          <td>${c.topic}</td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-xs btn-teal" onclick="showToast('🎵 Playing recording…','info')">▶ Play</button>
+              <button class="btn btn-xs btn-outline" onclick="showToast('Downloading…','info')">⬇ Download</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: RADIO SCHEDULE
+// ══════════════════════════════════════════════
+function renderRadio() {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const calEvents = [
+    {day:1,title:'Morning Drive',color:'var(--orange)'},{day:1,title:'Tech Talk',color:'var(--teal)'},
+    {day:3,title:'Business Hour',color:'var(--navy)'},{day:5,title:'Morning Drive',color:'var(--orange)'},
+    {day:5,title:'Muziki wa Pwani',color:'var(--teal)'},{day:6,title:'Youth Voices',color:'var(--info)'},
+  ];
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Radio Schedule</div><div class="sec-sub">Weekly program management and presenter assignments</div></div>
+    <button class="btn btn-primary" onclick="showToast('Add show modal','info')">+ Add Show</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active">Schedule List</div>
+    <div class="tab">Calendar View</div>
+    <div class="tab">Presenter View</div>
+  </div>
+  ${MOCK.radioShows.map(s=>`
+  <div class="schedule-item">
+    <div class="schedule-time">${s.time}</div>
+    <div style="flex:1">
+      <div class="schedule-show">${s.show}</div>
+      <div class="schedule-presenter">👤 ${s.presenter} · 📅 ${s.day} · 🎵 ${s.genre}</div>
+    </div>
+    ${statusBadge(s.status)}
+    <div class="flex gap-2">
+      <button class="btn btn-xs btn-teal" onclick="showToast('Edit show','info')">Edit</button>
+      <button class="btn btn-xs btn-outline" onclick="showToast('Schedule reminder sent','success')">Remind</button>
+    </div>
+  </div>`).join('')}
+  <div class="card mt-4">
+    <div class="card-title mb-4">This Week's Calendar</div>
+    <div class="cal-grid">
+      ${days.map(d=>`<div class="cal-header">${d}</div>`).join('')}
+      ${Array.from({length:7},(_,i)=>`
+        <div class="cal-cell ${i===4?'today':''}">
+          <div class="cal-date">${i+2}</div>
+          ${calEvents.filter(e=>e.day===i).map(e=>`<div class="cal-event" style="background:${e.color}">${e.title}</div>`).join('')}
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: NEWS CMS
+// ══════════════════════════════════════════════
+function renderNews() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">News CMS</div><div class="sec-sub">Editorial workflow, article management and publishing</div></div>
+    <button class="btn btn-primary" onclick="showToast('New article editor','info')">+ New Article</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active">All Articles</div>
+    <div class="tab">Drafts</div>
+    <div class="tab">In Review</div>
+    <div class="tab">Published</div>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+    ${kpi('📰','Total Articles','24','All time','up','var(--navy)')}
+    ${kpi('✅','Published','18','Live articles','up','var(--success)')}
+    ${kpi('📝','Drafts','3','In progress','up','var(--warning)')}
+    ${kpi('👁️','Total Views','2,341','This month','up','var(--teal)')}
+  </div>
+  <div class="grid-3">
+    ${MOCK.news.map(n=>`
+    <div class="news-card">
+      <div class="news-img">${['📰','🎙️','🎬','💡','🌍'][Math.floor(Math.random()*5)]}</div>
+      <div class="news-body">
+        <div class="news-tag">${n.category}</div>
+        <div class="news-title">${n.title}</div>
+        <div class="flex items-center gap-2 mb-2">${statusBadge(n.status)}<span class="text-xs text-muted">${n.views} views</span></div>
+        <div class="news-meta">✍️ ${n.author} · 📅 ${n.date}</div>
+        <div class="flex gap-2 mt-3">
+          <button class="btn btn-xs btn-teal" onclick="showToast('Article editor','info')">Edit</button>
+          ${n.status==='Draft'?`<button class="btn btn-xs btn-outline" onclick="showToast('Sent for review','success')">Submit</button>`:''}
+          ${n.status==='Approved'?`<button class="btn btn-xs btn-primary" onclick="showToast('Published!','success')">Publish</button>`:''}
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: VIDEOGRAPHY
+// ══════════════════════════════════════════════
+function renderVideography() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Videography Management</div><div class="sec-sub">Shoot requests, bookings and production management</div></div>
+    <button class="btn btn-primary" onclick="showToast('New shoot request','info')">+ Book Shoot</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi('🎬','Total Shoots','4','This month','up','var(--navy)')}
+    ${kpi('✅','Confirmed','2','Scheduled','up','var(--success)')}
+    ${kpi('⏳','Pending Approval','1','Awaiting','down','var(--warning)')}
+    ${kpi('📦','Footage Archive','47 GB','Stored in MinIO','up','var(--teal)')}
+  </div>
+  <div class="grid-2">
+    ${MOCK.shoots.map(s=>`
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <div style="width:46px;height:46px;border-radius:12px;background:#fff3e8;display:flex;align-items:center;justify-content:center;font-size:24px">🎬</div>
+          <div>
+            <div style="font-weight:700;font-size:15px">${s.title}</div>
+            <div class="text-xs text-muted">Client: ${s.client}</div>
+          </div>
+        </div>
+        ${statusBadge(s.status)}
+      </div>
+      <div class="flex gap-4 mb-3 flex-wrap">
+        <div><div class="text-xs text-muted">Date</div><div style="font-weight:600;font-size:13.5px">${s.date}</div></div>
+        <div><div class="text-xs text-muted">Crew Size</div><div style="font-weight:600;font-size:13.5px">${s.crew} people</div></div>
+        <div style="flex:1"><div class="text-xs text-muted">Equipment</div><div style="font-weight:500;font-size:12.5px">${s.equipment}</div></div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-xs btn-teal" onclick="showToast('Shoot details','info')">View Brief</button>
+        <button class="btn btn-xs btn-outline" onclick="showToast('Equipment reserved','success')">Reserve Equipment</button>
+        ${s.status==='Pending'?`<button class="btn btn-xs btn-primary" onclick="showToast('Shoot confirmed!','success')">Confirm</button>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: REPORTS
+// ══════════════════════════════════════════════
+function renderReports() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">Reports & Analytics</div><div class="sec-sub">System-wide analytics, exports and performance insights</div></div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline" onclick="showToast('Exporting CSV…','info')">Export CSV</button>
+      <button class="btn btn-primary" onclick="showToast('Generating PDF report…','info')">Export PDF Report</button>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    ${kpi('📊','System Health','98.5%','All modules','up','var(--success)')}
+    ${kpi('👥','Active Users','23','Today','up','var(--teal)')}
+    ${kpi('🔧','Equipment Util.','64%','This week','up','var(--orange)')}
+    ${kpi('💬','Avg Resolution','18h','Tickets','up','var(--info)')}
+    ${kpi('📻','FM Uptime','99.2%','This month','up','var(--success)')}
+    ${kpi('📁','Projects','24','Active','up','var(--navy)')}
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title mb-3">Ticket Volume by Category</div>
+      <div class="chart-area" style="height:200px">
+        <div style="width:100%">
+          ${[['IT','35%','var(--info)'],['Facilities','20%','var(--warning)'],['Equipment','25%','var(--orange)'],['Network','15%','var(--teal)'],['Admin','5%','#94a3b8']].map(([cat,pct,color])=>`
+          <div class="flex items-center gap-3 mb-2">
+            <span style="min-width:80px;font-size:12.5px">${cat}</span>
+            <div class="progress" style="flex:1"><div class="progress-bar" style="width:${pct};background:${color}"></div></div>
+            <span style="min-width:35px;font-size:12.5px;font-weight:700;color:${color}">${pct}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title mb-3">Equipment Usage by Category</div>
+      <div class="chart-area" style="height:200px">
+        <div style="width:100%">
+          ${[['Camera','85%','var(--orange)'],['Audio','72%','var(--teal)'],['Lighting','55%','var(--warning)'],['Computer','90%','var(--info)'],['Stabilizer','40%','var(--navy)']].map(([cat,pct,color])=>`
+          <div class="flex items-center gap-3 mb-2">
+            <span style="min-width:80px;font-size:12.5px">${cat}</span>
+            <div class="progress" style="flex:1"><div class="progress-bar" style="width:${pct};background:${color}"></div></div>
+            <span style="min-width:35px;font-size:12.5px;font-weight:700;color:${color}">${pct}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-4">
+    <div class="card-title mb-3">Quick Report Links</div>
+    <div class="grid-3">
+      ${[
+        ['📻','FM Station Uptime Report','Monthly outage analytics'],
+        ['🔧','Equipment Utilization','Checkout and return stats'],
+        ['💬','Ticket Resolution Report','SLA compliance metrics'],
+        ['📁','Project Submission Stats','Grading and review trends'],
+        ['💿','Subscription Usage','Seat allocation and costs'],
+        ['📶','Wi-Fi Access Audit','Device and user activity'],
+      ].map(([icon,title,sub])=>`
+      <div style="background:var(--bg);border-radius:10px;padding:16px;cursor:pointer;transition:all var(--transition)" onclick="showToast('Generating ${title}…','info')" onmouseover="this.style.borderColor='var(--teal)'" class="card">
+        <div style="font-size:22px;margin-bottom:8px">${icon}</div>
+        <div style="font-weight:700;font-size:13.5px;color:var(--navy)">${title}</div>
+        <div class="text-xs text-muted mt-1">${sub}</div>
+        <div class="flex gap-2 mt-3">
+          <button class="btn btn-xs btn-outline">CSV</button>
+          <button class="btn btn-xs btn-outline">PDF</button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: USERS
+// ══════════════════════════════════════════════
+function renderUsers() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">User Management</div><div class="sec-sub">Manage accounts, roles and permissions</div></div>
+    <button class="btn btn-primary" onclick="showToast('Invite user modal','info')">+ Invite User</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi('👥','Total Users','6','All accounts','up','var(--navy)')}
+    ${kpi('✅','Active','5','Currently active','up','var(--success)')}
+    ${kpi('🛡️','Admins','1','Full access','up','var(--orange)')}
+    ${kpi('🎓','Attachees','2','Interns','up','var(--teal)')}
+  </div>
+  <div class="filter-bar">
+    <input class="form-control" placeholder="🔍 Search users…" style="width:240px"/>
+    <select class="form-control"><option>All Roles</option><option>Admin</option><option>Staff</option><option>Attachee</option><option>Supervisor</option></select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${MOCK.users.map(u=>`<tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <div style="width:34px;height:34px;border-radius:50%;background:${u.role==='Admin'?'var(--orange)':u.role==='Supervisor'?'var(--teal)':'var(--navy)'};display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700">${u.name.split(' ').map(n=>n[0]).join('')}</div>
+              <strong>${u.name}</strong>
+            </div>
+          </td>
+          <td class="text-sm">${u.email}</td>
+          <td><span class="badge ${u.role==='Admin'?'badge-orange':u.role==='Supervisor'?'badge-teal':'badge-navy'}">${u.role}</span></td>
+          <td class="text-sm text-muted">${u.dept}</td>
+          <td>${statusBadge(u.status)}</td>
+          <td class="text-sm text-muted">${u.lastLogin}</td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-xs btn-outline" onclick="showToast('Edit user','info')">Edit</button>
+              <button class="btn btn-xs btn-outline" onclick="showToast('Role changed','success')">Role</button>
+              ${u.status==='Active'?`<button class="btn btn-xs btn-danger" onclick="showToast('User deactivated','warning')">Deactivate</button>`:`<button class="btn btn-xs btn-success" onclick="showToast('User activated','success')">Activate</button>`}
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGE: SETTINGS
+// ══════════════════════════════════════════════
+function renderSettings() {
+  return `
+  <div class="sec-header">
+    <div><div class="sec-title">System Settings</div><div class="sec-sub">Configure SHMS global settings and preferences</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title mb-4">Organization Info</div>
+      <div class="form-group"><label class="form-label">Organization Name</label><input class="form-control" value="Swahilipot Hub Foundation"/></div>
+      <div class="form-group"><label class="form-label">System Email</label><input class="form-control" value="admin@swahilipothub.org"/></div>
+      <div class="form-group"><label class="form-label">FM Frequency</label><input class="form-control" value="91.5 MHz"/></div>
+      <div class="form-group"><label class="form-label">Timezone</label><select class="form-control"><option>Africa/Nairobi (EAT +3)</option></select></div>
+      <button class="btn btn-primary" onclick="showToast('Settings saved!','success')">Save Changes</button>
+    </div>
+    <div class="card">
+      <div class="card-title mb-4">Notification Settings</div>
+      ${settingToggle('Email alerts for expiring subscriptions','On')}
+      ${settingToggle('FM outage auto-detection (every 5 min)','On')}
+      ${settingToggle('Equipment overdue alerts','On')}
+      ${settingToggle('Wi-Fi access expiry reminders','On')}
+      ${settingToggle('New ticket notifications to staff','On')}
+      ${settingToggle('Daily summary email','Off')}
+      <button class="btn btn-primary mt-3" onclick="showToast('Notification preferences saved!','success')">Save Preferences</button>
+    </div>
+    <div class="card">
+      <div class="card-title mb-4">Storage Configuration</div>
+      <div class="form-group"><label class="form-label">Storage Backend</label><select class="form-control"><option>MinIO (Local)</option><option>AWS S3</option></select></div>
+      <div class="form-group"><label class="form-label">MinIO Endpoint</label><input class="form-control" value="https://minio.swahilipothub.org"/></div>
+      <div class="form-group"><label class="form-label">Default Bucket</label><input class="form-control" value="shms-storage"/></div>
+      <div class="mb-3">
+        <div class="text-sm text-muted mb-1">Storage Used</div>
+        <div class="progress"><div class="progress-bar" style="width:48%;background:var(--teal)"></div></div>
+        <div class="text-xs text-muted mt-1">48 GB used of 100 GB</div>
+      </div>
+      <button class="btn btn-teal" onclick="showToast('Connection tested — OK!','success')">Test Connection</button>
+    </div>
+    <div class="card">
+      <div class="card-title mb-4">Security Settings</div>
+      ${settingToggle('Enforce 2FA for Admins','On')}
+      ${settingToggle('Session timeout (30 min)','On')}
+      ${settingToggle('Audit logging','On')}
+      ${settingToggle('API access enabled','On')}
+      <div class="form-group mt-3"><label class="form-label">JWT Token Expiry (minutes)</label><input class="form-control" value="60"/></div>
+      <button class="btn btn-primary mt-2" onclick="showToast('Security settings saved!','success')">Save Security Settings</button>
+    </div>
+  </div>`;
+}
+
+function settingToggle(label, state) {
+  const on = state === 'On';
+  return `<div class="flex items-center justify-between mb-3">
+    <span style="font-size:13.5px">${label}</span>
+    <div style="width:44px;height:24px;border-radius:12px;background:${on?'var(--teal)':'#e5e7eb'};cursor:pointer;position:relative;transition:background var(--transition)" onclick="this.style.background=this.style.background==='rgb(0,169,157)'?'#e5e7eb':'var(--teal)'">
+      <div style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;${on?'right:3px':'left:3px'};transition:all var(--transition)"></div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PAGINATION
+// ══════════════════════════════════════════════
+function pagination(current, total) {
+  let html = '<div class="pagination">';
+  html += `<div class="page-btn" onclick="showToast('Previous page','info')">‹</div>`;
+  for(let i=1;i<=total;i++) html += `<div class="page-btn ${i===current?'active':''}" onclick="showToast('Page ${i}','info')">${i}</div>`;
+  html += `<div class="page-btn" onclick="showToast('Next page','info')">›</div>`;
+  html += '</div>';
+  return html;
+}
+
+// ══════════════════════════════════════════════
+//  RENDER ROUTER
+// ══════════════════════════════════════════════
+function renderPage(page) {
+  const content = document.getElementById('content');
+  const renders = {
+    dashboard: renderDashboard,
+    equipment: renderEquipment,
+    projects: renderProjects,
+    subscriptions: renderSubscriptions,
+    wifi: renderWifi,
+    feedback: renderFeedback,
+    filetransfer: renderFileTransfer,
+    fmstation: renderFMStation,
+    calls: renderCalls,
+    radio: renderRadio,
+    news: renderNews,
+    videography: renderVideography,
+    reports: renderReports,
+    users: renderUsers,
+    settings: renderSettings,
+  };
+  const fn = renders[page];
+  content.innerHTML = fn ? fn() : `<div class="card" style="text-align:center;padding:60px"><div style="font-size:40px">🚧</div><div class="sec-title mt-3">${page.charAt(0).toUpperCase()+page.slice(1)}</div><div class="sec-sub mt-2">This module is ready for backend integration.</div></div>`;
+  content.scrollTop = 0;
+}
+
+// ══════════════════════════════════════════════
+//  RESPONSIVE MENU BUTTON
+// ══════════════════════════════════════════════
+function checkMobile() {
+  document.getElementById('menu-btn').style.display = window.innerWidth < 900 ? 'flex' : 'none';
+}
+window.addEventListener('resize', checkMobile);
+checkMobile();
+
+// Show notif dot on load
+setTimeout(()=>{ const dot = document.getElementById('notif-dot'); if(dot) dot.style.display='block'; }, 500);
+</script>
+</body>
+</html>
